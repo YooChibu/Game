@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>디펜스 게임</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            padding-top: 56px;
+        }
+        .game-container {
+            position: relative;
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        .game-area {
+            position: relative;
+        }
+        .side-panel {
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        canvas {
+            border: 1px solid black;
+            display: block;
+        }
+        .tower-menu {
+            position: fixed;
+            background-color: white;
+            padding: 10px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .tower-menu button {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .tower-menu button:hover {
+            background-color: #45a049;
+        }
+        .tower-menu button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .game-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .game-controls button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .start-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .pause-btn {
+            background-color: #f0ad4e;
+            color: white;
+        }
+        .help-btn {
+            background-color: #5bc0de;
+            color: white;
+        }
+        .difficulty-select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        .stats-panel {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .minimap {
+            width: 150px;
+            height: 150px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .ability-bar {
+            display: flex;
+            gap: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .ability-button {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .ability-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .combo-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            text-align: center;
+            z-index: 1000;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 12px;
+            display: none;
+            z-index: 1000;
+        }
+        .help-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .help-modal h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .help-modal ul {
+            padding-left: 20px;
+        }
+        .help-modal li {
+            margin: 10px 0;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .save-load {
+            display: flex;
+            gap: 10px;
+        }
+        .save-load button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+        }
+        .sound-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .sound-control button {
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+        }
+        .achievement {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+            z-index: 1000;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        .info-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            background: rgba(34, 34, 34, 0.95);
+            color: #fff;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 10px 0;
+            z-index: 2000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .info-bar span {
+            min-width: 120px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-bar" id="infoBar">
+        <span id="infoGold">골드: 0</span>
+        <span id="infoLives">생명: 0</span>
+        <span id="infoWave">웨이브: 0</span>
+        <span id="infoScore">점수: 0</span>
+        <span id="infoDifficulty">난이도: NORMAL</span>
+    </div>
+    <div class="game-container">
+        <div class="game-area">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <div class="combo-indicator" id="comboIndicator">
+                <h3>타워 조합 성공!</h3>
+                <p id="comboDescription"></p>
+            </div>
+            <div class="tooltip" id="tooltip"></div>
+        </div>
+        
+        <div class="side-panel">
+            <div class="game-controls">
+                <button class="start-btn" id="startBtn">게임 시작</button>
+                <button class="pause-btn" id="pauseBtn">일시정지</button>
+                <button class="help-btn" id="helpBtn">도움말</button>
+                <select class="difficulty-select" id="difficultySelect">
+                    <option value="EASY">쉬움</option>
+                    <option value="NORMAL" selected>보통</option>
+                    <option value="HARD">어려움</option>
+                </select>
+            </div>
+            
+            <div class="stats-panel">
+                <h3>게임 통계</h3>
+                <div id="stats">
+                    <p>처치한 적: <span id="enemiesKilled">0</span></p>
+                    <p>처치한 보스: <span id="bossesKilled">0</span></p>
+                    <p>총 획득 골드: <span id="totalGold">0</span></p>
+                    <p>최고 웨이브: <span id="highestWave">0</span></p>
+                </div>
+            </div>
+            
+            <div class="minimap">
+                <canvas id="minimapCanvas" width="150" height="150"></canvas>
+            </div>
+            
+            <div class="ability-bar">
+                <button class="ability-button" id="ability1" title="전체 타워 강화 (300골드)">⚡</button>
+                <button class="ability-button" id="ability2" title="적 이동 속도 감소 (200골드)">❄️</button>
+                <button class="ability-button" id="ability3" title="골드 자동 획득 (400골드)">💰</button>
+            </div>
+            
+            <div class="save-load">
+                <button id="saveBtn">저장</button>
+                <button id="loadBtn">불러오기</button>
+            </div>
+            
+            <div class="sound-control">
+                <button id="soundToggle">🔊</button>
+                <button id="musicToggle">🎵</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="help-modal" id="helpModal">
+        <span class="close-btn" id="closeHelp">&times;</span>
+        <h2>게임 설명</h2>
+        <ul>
+            <li>스페이스바: 다음 웨이브 시작</li>
+            <li>마우스 클릭: 타워 설치/업그레이드</li>
+            <li>타워 종류:
+                <ul>
+                    <li>기본 타워 (50골드): 기본적인 공격력과 범위</li>
+                    <li>스나이퍼 타워 (100골드): 관통 공격 가능</li>
+                    <li>스플래시 타워 (150골드): 범위 공격과 감속 효과</li>
+                    <li>레이저 타워 (200골드): 지속 데미지 공격</li>
+                </ul>
+            </li>
+            <li>타워 조합:
+                <ul>
+                    <li>기본 타워 + 스나이퍼 타워 = 관통 데미지 증가</li>
+                    <li>스플래시 타워 + 레이저 타워 = 범위 데미지 증가</li>
+                    <li>모든 타워 종류 설치 = 전체 타워 강화</li>
+                </ul>
+            </li>
+            <li>특수 능력:
+                <ul>
+                    <li>전체 타워 강화: 모든 타워의 데미지 2배 (30초)</li>
+                    <li>적 이동 속도 감소: 모든 적의 이동 속도 50% 감소 (20초)</li>
+                    <li>골드 자동 획득: 5초마다 10골드 자동 획득 (60초)</li>
+                </ul>
+            </li>
+            <li>보스 몬스터:
+                <ul>
+                    <li>탱크 보스: 높은 체력과 방어 능력</li>
+                    <li>스피드 보스: 빠른 이동과 순간 이동 능력</li>
+                    <li>소환사 보스: 적 소환 능력</li>
+                </ul>
+            </li>
+            <li>난이도:
+                <ul>
+                    <li>쉬움: 더 많은 골드와 생명력, 약한 적</li>
+                    <li>보통: 기본 설정</li>
+                    <li>어려움: 적은 골드와 생명력, 강한 적</li>
+                </ul>
+            </li>
+            <li>업적:
+                <ul>
+                    <li>첫 타워: 첫 타워 설치</li>
+                    <li>보스 킬러: 첫 보스 처치</li>
+                    <li>타워 마스터: 모든 타워 종류 설치</li>
+                    <li>웨이브 마스터: 10웨이브 클리어</li>
+                </ul>
+            </li>
+            <li>타워 업그레이드: 설치된 타워를 클릭하여 업그레이드 가능</li>
+            <li>타워 판매: 업그레이드 메뉴에서 판매 가능 (설치 가격의 70% 환불)</li>
+        </ul>
+    </div>
+
+    <div class="achievement" id="achievement">
+        업적 달성!
+    </div>
+
+    <audio id="bgm" preload="none">
+        <source src="sounds/bgm.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="towerPlace" preload="none">
+        <source src="sounds/tower_place.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="enemyDeath" preload="none">
+        <source src="sounds/enemy_death.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bossSpawn" preload="none">
+        <source src="sounds/boss_spawn.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="powerup" preload="none">
+        <source src="sounds/powerup.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="game.js"></script>
+</body>
+</html> 
