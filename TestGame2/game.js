@@ -21,7 +21,8 @@ const gameState = {
     towerCount: 0, // 현재 설치된 타워 수
     experience: 0,
     level: 1,
-    experienceToNextLevel: 100
+    experienceToNextLevel: 100,
+    currentMap: 'STRAIGHT' // 현재 맵 정보 추가
 };
 
 // 난이도 설정
@@ -60,31 +61,636 @@ const TILE_SIZE = 40;
 const GRID_WIDTH = canvas.width / TILE_SIZE;
 const GRID_HEIGHT = canvas.height / TILE_SIZE;
 
-// 경로 설정 (적이 이동할 경로)
-const path = [
-    {x: 0, y: 3},
-    {x: 1, y: 3},
-    {x: 2, y: 3},
-    {x: 2, y: 2},
-    {x: 3, y: 2},
-    {x: 4, y: 2},
-    {x: 4, y: 1},
-    {x: 5, y: 1},
-    {x: 6, y: 1},
-    {x: 7, y: 1},
-    {x: 8, y: 1},
-    {x: 9, y: 1},
-    {x: 10, y: 1},
-    {x: 11, y: 1},
-    {x: 12, y: 1},
-    {x: 13, y: 1},
-    {x: 14, y: 1},
-    {x: 15, y: 1},
-    {x: 16, y: 1},
-    {x: 17, y: 1},
-    {x: 18, y: 1},
-    {x: 19, y: 1}
-];
+// 맵 정의
+const MAPS = {
+    STRAIGHT: {
+        name: '직선 경로',
+        path: [
+            {x: 0, y: 7},
+            {x: 1, y: 7},
+            {x: 2, y: 7},
+            {x: 3, y: 7},
+            {x: 4, y: 7},
+            {x: 5, y: 7},
+            {x: 6, y: 7},
+            {x: 7, y: 7},
+            {x: 8, y: 7},
+            {x: 9, y: 7},
+            {x: 10, y: 7},
+            {x: 11, y: 7},
+            {x: 12, y: 7},
+            {x: 13, y: 7},
+            {x: 14, y: 7},
+            {x: 15, y: 7},
+            {x: 16, y: 7},
+            {x: 17, y: 7},
+            {x: 18, y: 7},
+            {x: 19, y: 7}
+        ]
+    },
+    ZIGZAG: {
+        name: '지그재그',
+        path: [
+            {x: 0, y: 5},
+            {x: 1, y: 5},
+            {x: 2, y: 5},
+            {x: 3, y: 5},
+            {x: 4, y: 5},
+            {x: 4, y: 3},
+            {x: 5, y: 3},
+            {x: 6, y: 3},
+            {x: 7, y: 3},
+            {x: 8, y: 3},
+            {x: 8, y: 7},
+            {x: 9, y: 7},
+            {x: 10, y: 7},
+            {x: 11, y: 7},
+            {x: 12, y: 7},
+            {x: 12, y: 3},
+            {x: 13, y: 3},
+            {x: 14, y: 3},
+            {x: 15, y: 3},
+            {x: 16, y: 3},
+            {x: 16, y: 7},
+            {x: 17, y: 7},
+            {x: 18, y: 7},
+            {x: 19, y: 7}
+        ]
+    },
+    SPIRAL: {
+        name: '나선형',
+        path: [
+            {x: 0, y: 7},
+            {x: 1, y: 7},
+            {x: 2, y: 7},
+            {x: 3, y: 7},
+            {x: 4, y: 7},
+            {x: 4, y: 5},
+            {x: 4, y: 3},
+            {x: 4, y: 1},
+            {x: 6, y: 1},
+            {x: 8, y: 1},
+            {x: 10, y: 1},
+            {x: 10, y: 3},
+            {x: 10, y: 5},
+            {x: 10, y: 7},
+            {x: 10, y: 9},
+            {x: 10, y: 11},
+            {x: 12, y: 11},
+            {x: 14, y: 11},
+            {x: 16, y: 11},
+            {x: 16, y: 9},
+            {x: 16, y: 7},
+            {x: 16, y: 5},
+            {x: 16, y: 3},
+            {x: 16, y: 1},
+            {x: 18, y: 1},
+            {x: 19, y: 1}
+        ]
+    },
+    MAZE: {
+        name: '미로',
+        path: [
+            {x: 0, y: 7},
+            {x: 1, y: 7},
+            {x: 2, y: 7},
+            {x: 3, y: 7},
+            {x: 4, y: 7},
+            {x: 4, y: 5},
+            {x: 4, y: 3},
+            {x: 6, y: 3},
+            {x: 8, y: 3},
+            {x: 8, y: 5},
+            {x: 8, y: 7},
+            {x: 8, y: 9},
+            {x: 10, y: 9},
+            {x: 12, y: 9},
+            {x: 12, y: 7},
+            {x: 12, y: 5},
+            {x: 14, y: 5},
+            {x: 16, y: 5},
+            {x: 16, y: 7},
+            {x: 16, y: 9},
+            {x: 18, y: 9},
+            {x: 19, y: 9}
+        ]
+    },
+    CROSS: {
+        name: '십자형',
+        path: [
+            {x: 0, y: 7},
+            {x: 1, y: 7},
+            {x: 2, y: 7},
+            {x: 3, y: 7},
+            {x: 4, y: 7},
+            {x: 5, y: 7},
+            {x: 6, y: 7},
+            {x: 7, y: 7},
+            {x: 8, y: 7},
+            {x: 9, y: 7},
+            {x: 9, y: 5},
+            {x: 9, y: 3},
+            {x: 9, y: 1},
+            {x: 11, y: 1},
+            {x: 13, y: 1},
+            {x: 15, y: 1},
+            {x: 15, y: 3},
+            {x: 15, y: 5},
+            {x: 15, y: 7},
+            {x: 15, y: 9},
+            {x: 15, y: 11},
+            {x: 17, y: 11},
+            {x: 19, y: 11}
+        ]
+    },
+    SNAKE: {
+        name: '뱀형',
+        path: [
+            {x: 0, y: 3},
+            {x: 2, y: 3},
+            {x: 4, y: 3},
+            {x: 4, y: 5},
+            {x: 4, y: 7},
+            {x: 6, y: 7},
+            {x: 8, y: 7},
+            {x: 8, y: 5},
+            {x: 8, y: 3},
+            {x: 10, y: 3},
+            {x: 12, y: 3},
+            {x: 12, y: 5},
+            {x: 12, y: 7},
+            {x: 14, y: 7},
+            {x: 16, y: 7},
+            {x: 16, y: 5},
+            {x: 16, y: 3},
+            {x: 18, y: 3},
+            {x: 19, y: 3}
+        ]
+    },
+    DIAMOND: {
+        name: '다이아몬드',
+        path: [
+            {x: 0, y: 7},
+            {x: 2, y: 7},
+            {x: 4, y: 7},
+            {x: 6, y: 7},
+            {x: 8, y: 7},
+            {x: 8, y: 5},
+            {x: 8, y: 3},
+            {x: 10, y: 3},
+            {x: 12, y: 3},
+            {x: 12, y: 5},
+            {x: 12, y: 7},
+            {x: 14, y: 7},
+            {x: 16, y: 7},
+            {x: 16, y: 9},
+            {x: 16, y: 11},
+            {x: 14, y: 11},
+            {x: 12, y: 11},
+            {x: 12, y: 9},
+            {x: 10, y: 9},
+            {x: 8, y: 9},
+            {x: 6, y: 9},
+            {x: 4, y: 9},
+            {x: 2, y: 9},
+            {x: 0, y: 9}
+        ]
+    },
+    LABYRINTH: {
+        name: '미궁',
+        path: [
+            {x: 0, y: 7},
+            {x: 1, y: 7},
+            {x: 2, y: 7},
+            {x: 3, y: 7},
+            {x: 4, y: 7},
+            {x: 4, y: 5},
+            {x: 4, y: 3},
+            {x: 4, y: 1},
+            {x: 6, y: 1},
+            {x: 8, y: 1},
+            {x: 10, y: 1},
+            {x: 10, y: 3},
+            {x: 10, y: 5},
+            {x: 10, y: 7},
+            {x: 10, y: 9},
+            {x: 10, y: 11},
+            {x: 12, y: 11},
+            {x: 14, y: 11},
+            {x: 16, y: 11},
+            {x: 16, y: 9},
+            {x: 16, y: 7},
+            {x: 16, y: 5},
+            {x: 16, y: 3},
+            {x: 16, y: 1},
+            {x: 18, y: 1},
+            {x: 19, y: 1}
+        ]
+    },
+    DOUBLE_SPIRAL: {
+        name: '이중 나선',
+        path: [
+            {x: 0, y: 7},
+            {x: 1, y: 7},
+            {x: 2, y: 7},
+            {x: 3, y: 7},
+            {x: 4, y: 7},
+            {x: 4, y: 5},
+            {x: 4, y: 3},
+            {x: 4, y: 1},
+            {x: 6, y: 1},
+            {x: 8, y: 1},
+            {x: 10, y: 1},
+            {x: 10, y: 3},
+            {x: 10, y: 5},
+            {x: 10, y: 7},
+            {x: 10, y: 9},
+            {x: 10, y: 11},
+            {x: 12, y: 11},
+            {x: 14, y: 11},
+            {x: 16, y: 11},
+            {x: 16, y: 9},
+            {x: 16, y: 7},
+            {x: 16, y: 5},
+            {x: 16, y: 3},
+            {x: 16, y: 1},
+            {x: 18, y: 1},
+            {x: 19, y: 1},
+            {x: 19, y: 3},
+            {x: 19, y: 5},
+            {x: 19, y: 7},
+            {x: 19, y: 9},
+            {x: 19, y: 11},
+            {x: 17, y: 11},
+            {x: 15, y: 11},
+            {x: 13, y: 11},
+            {x: 11, y: 11},
+            {x: 9, y: 11},
+            {x: 7, y: 11},
+            {x: 5, y: 11},
+            {x: 3, y: 11},
+            {x: 1, y: 11}
+        ]
+    },
+    PYRAMID: {
+        name: '피라미드',
+        path: [
+            {x: 0, y: 7},
+            {x: 2, y: 7},
+            {x: 4, y: 7},
+            {x: 6, y: 7},
+            {x: 8, y: 7},
+            {x: 8, y: 5},
+            {x: 8, y: 3},
+            {x: 10, y: 3},
+            {x: 12, y: 3},
+            {x: 14, y: 3},
+            {x: 16, y: 3},
+            {x: 16, y: 5},
+            {x: 16, y: 7},
+            {x: 16, y: 9},
+            {x: 16, y: 11},
+            {x: 14, y: 11},
+            {x: 12, y: 11},
+            {x: 10, y: 11},
+            {x: 8, y: 11},
+            {x: 6, y: 11},
+            {x: 4, y: 11},
+            {x: 2, y: 11},
+            {x: 0, y: 11}
+        ]
+    },
+    WAVE: {
+        name: '파도형',
+        path: [
+            {x: 0, y: 5},
+            {x: 1, y: 5},
+            {x: 2, y: 5},
+            {x: 3, y: 5},
+            {x: 4, y: 5},
+            {x: 4, y: 3},
+            {x: 5, y: 3},
+            {x: 6, y: 3},
+            {x: 7, y: 3},
+            {x: 8, y: 3},
+            {x: 8, y: 5},
+            {x: 9, y: 5},
+            {x: 10, y: 5},
+            {x: 11, y: 5},
+            {x: 12, y: 5},
+            {x: 12, y: 7},
+            {x: 13, y: 7},
+            {x: 14, y: 7},
+            {x: 15, y: 7},
+            {x: 16, y: 7},
+            {x: 16, y: 9},
+            {x: 17, y: 9},
+            {x: 18, y: 9},
+            {x: 19, y: 9}
+        ]
+    },
+    STAIRS: {
+        name: '계단형',
+        path: [
+            {x: 0, y: 1},
+            {x: 2, y: 1},
+            {x: 2, y: 3},
+            {x: 4, y: 3},
+            {x: 4, y: 5},
+            {x: 6, y: 5},
+            {x: 6, y: 7},
+            {x: 8, y: 7},
+            {x: 8, y: 9},
+            {x: 10, y: 9},
+            {x: 10, y: 11},
+            {x: 12, y: 11},
+            {x: 12, y: 9},
+            {x: 14, y: 9},
+            {x: 14, y: 7},
+            {x: 16, y: 7},
+            {x: 16, y: 5},
+            {x: 18, y: 5},
+            {x: 18, y: 3},
+            {x: 19, y: 3}
+        ]
+    },
+    CROSSROADS: {
+        name: '교차로',
+        path: [
+            {x: 0, y: 7},
+            {x: 2, y: 7},
+            {x: 4, y: 7},
+            {x: 6, y: 7},
+            {x: 8, y: 7},
+            {x: 8, y: 5},
+            {x: 8, y: 3},
+            {x: 8, y: 1},
+            {x: 10, y: 1},
+            {x: 12, y: 1},
+            {x: 14, y: 1},
+            {x: 16, y: 1},
+            {x: 16, y: 3},
+            {x: 16, y: 5},
+            {x: 16, y: 7},
+            {x: 16, y: 9},
+            {x: 16, y: 11},
+            {x: 14, y: 11},
+            {x: 12, y: 11},
+            {x: 10, y: 11},
+            {x: 8, y: 11},
+            {x: 8, y: 9},
+            {x: 8, y: 7},
+            {x: 10, y: 7},
+            {x: 12, y: 7},
+            {x: 14, y: 7},
+            {x: 16, y: 7},
+            {x: 18, y: 7},
+            {x: 19, y: 7}
+        ]
+    },
+    INFINITY: {
+        name: '무한형',
+        path: [
+            {x: 0, y: 7},
+            {x: 2, y: 7},
+            {x: 4, y: 7},
+            {x: 6, y: 7},
+            {x: 8, y: 7},
+            {x: 8, y: 5},
+            {x: 8, y: 3},
+            {x: 10, y: 3},
+            {x: 12, y: 3},
+            {x: 12, y: 5},
+            {x: 12, y: 7},
+            {x: 12, y: 9},
+            {x: 12, y: 11},
+            {x: 10, y: 11},
+            {x: 8, y: 11},
+            {x: 8, y: 9},
+            {x: 8, y: 7},
+            {x: 6, y: 7},
+            {x: 4, y: 7},
+            {x: 2, y: 7},
+            {x: 0, y: 7},
+            {x: 0, y: 5},
+            {x: 0, y: 3},
+            {x: 2, y: 3},
+            {x: 4, y: 3},
+            {x: 6, y: 3},
+            {x: 8, y: 3},
+            {x: 10, y: 3},
+            {x: 12, y: 3},
+            {x: 14, y: 3},
+            {x: 16, y: 3},
+            {x: 18, y: 3},
+            {x: 19, y: 3}
+        ]
+    },
+    BUTTERFLY: {
+        name: '나비형',
+        path: [
+            {x: 0, y: 7},
+            {x: 2, y: 7},
+            {x: 4, y: 7},
+            {x: 6, y: 7},
+            {x: 8, y: 7},
+            {x: 8, y: 5},
+            {x: 8, y: 3},
+            {x: 10, y: 3},
+            {x: 12, y: 3},
+            {x: 12, y: 5},
+            {x: 12, y: 7},
+            {x: 12, y: 9},
+            {x: 12, y: 11},
+            {x: 10, y: 11},
+            {x: 8, y: 11},
+            {x: 8, y: 9},
+            {x: 8, y: 7},
+            {x: 6, y: 7},
+            {x: 4, y: 7},
+            {x: 2, y: 7},
+            {x: 0, y: 7},
+            {x: 0, y: 5},
+            {x: 0, y: 3},
+            {x: 2, y: 3},
+            {x: 4, y: 3},
+            {x: 6, y: 3},
+            {x: 8, y: 3},
+            {x: 10, y: 3},
+            {x: 12, y: 3},
+            {x: 14, y: 3},
+            {x: 16, y: 3},
+            {x: 18, y: 3},
+            {x: 19, y: 3}
+        ]
+    },
+    HOURGLASS: {
+        name: '모래시계',
+        path: [
+            {x: 0, y: 3},
+            {x: 2, y: 3},
+            {x: 4, y: 3},
+            {x: 6, y: 3},
+            {x: 8, y: 3},
+            {x: 10, y: 3},
+            {x: 10, y: 5},
+            {x: 10, y: 7},
+            {x: 8, y: 7},
+            {x: 6, y: 7},
+            {x: 4, y: 7},
+            {x: 2, y: 7},
+            {x: 0, y: 7},
+            {x: 0, y: 9},
+            {x: 0, y: 11},
+            {x: 2, y: 11},
+            {x: 4, y: 11},
+            {x: 6, y: 11},
+            {x: 8, y: 11},
+            {x: 10, y: 11},
+            {x: 12, y: 11},
+            {x: 14, y: 11},
+            {x: 16, y: 11},
+            {x: 18, y: 11},
+            {x: 19, y: 11}
+        ]
+    },
+    STAR: {
+        name: '별형',
+        path: [
+            {x: 0, y: 7},  // 시작점
+            {x: 4, y: 7},  // 오른쪽으로 이동
+            {x: 6, y: 3},  // 오른쪽 상단 꼭지점
+            {x: 8, y: 7},  // 중앙으로
+            {x: 12, y: 3}, // 오른쪽 상단 꼭지점
+            {x: 14, y: 7}, // 중앙으로
+            {x: 19, y: 7}, // 오른쪽 끝
+            {x: 15, y: 11}, // 오른쪽 하단 꼭지점
+            {x: 14, y: 7}, // 중앙으로
+            {x: 10, y: 11}, // 왼쪽 하단 꼭지점
+            {x: 8, y: 7},  // 중앙으로
+            {x: 4, y: 11}, // 왼쪽 하단 꼭지점
+            {x: 0, y: 7}   // 시작점으로 복귀
+        ]
+    },
+    VORTEX: {
+        name: '소용돌이',
+        path: [
+            {x: 0, y: 7},
+            {x: 1, y: 7},
+            {x: 2, y: 7},
+            {x: 3, y: 7},
+            {x: 4, y: 7},
+            {x: 4, y: 6},
+            {x: 4, y: 5},
+            {x: 4, y: 4},
+            {x: 4, y: 3},
+            {x: 5, y: 3},
+            {x: 6, y: 3},
+            {x: 7, y: 3},
+            {x: 8, y: 3},
+            {x: 8, y: 4},
+            {x: 8, y: 5},
+            {x: 8, y: 6},
+            {x: 8, y: 7},
+            {x: 8, y: 8},
+            {x: 8, y: 9},
+            {x: 8, y: 10},
+            {x: 9, y: 10},
+            {x: 10, y: 10},
+            {x: 11, y: 10},
+            {x: 12, y: 10},
+            {x: 12, y: 9},
+            {x: 12, y: 8},
+            {x: 12, y: 7},
+            {x: 12, y: 6},
+            {x: 12, y: 5},
+            {x: 12, y: 4},
+            {x: 13, y: 4},
+            {x: 14, y: 4},
+            {x: 15, y: 4},
+            {x: 16, y: 4},
+            {x: 16, y: 5},
+            {x: 16, y: 6},
+            {x: 16, y: 7},
+            {x: 16, y: 8},
+            {x: 16, y: 9},
+            {x: 16, y: 10},
+            {x: 17, y: 10},
+            {x: 18, y: 10},
+            {x: 19, y: 10}
+        ]
+    },
+    MAZE2: {
+        name: '맵1',
+        path: [
+            {x: 0, y: 7},
+            {x: 1, y: 7},
+            {x: 2, y: 7},
+            {x: 3, y: 7},
+            {x: 4, y: 7},
+            {x: 4, y: 5},
+            {x: 4, y: 3},
+            {x: 6, y: 3},
+            {x: 8, y: 3},
+            {x: 10, y: 3},
+            {x: 10, y: 5},
+            {x: 10, y: 7},
+            {x: 10, y: 9},
+            {x: 12, y: 9},
+            {x: 14, y: 9},
+            {x: 16, y: 9},
+            {x: 16, y: 7},
+            {x: 16, y: 5},
+            {x: 16, y: 3},
+            {x: 16, y: 1},
+            {x: 18, y: 1},
+            {x: 19, y: 1}
+        ]
+    },
+    SNAKE2: {
+        name: '맵2',
+        path: [
+            {x: 0, y: 3},
+            {x: 2, y: 3},
+            {x: 4, y: 3},
+            {x: 4, y: 5},
+            {x: 4, y: 7},
+            {x: 6, y: 7},
+            {x: 8, y: 7},
+            {x: 8, y: 5},
+            {x: 8, y: 3},
+            {x: 10, y: 3},
+            {x: 12, y: 3},
+            {x: 12, y: 5},
+            {x: 12, y: 7},
+            {x: 14, y: 7},
+            {x: 16, y: 7},
+            {x: 16, y: 5},
+            {x: 16, y: 3},
+            {x: 18, y: 3},
+            {x: 19, y: 3}
+        ]
+    },
+    TRIANGLE: {
+        name: '삼각형',
+        path: [
+            {x: 0, y: 7},   // 시작점
+            {x: 4, y: 7},   // 오른쪽으로
+            {x: 8, y: 3},   // 상단 꼭지점
+            {x: 12, y: 7},  // 오른쪽으로
+            {x: 16, y: 7},  // 오른쪽으로
+            {x: 19, y: 7},  // 오른쪽 끝
+            {x: 16, y: 11}, // 하단 꼭지점
+            {x: 12, y: 11}, // 왼쪽으로
+            {x: 8, y: 11},  // 왼쪽으로
+            {x: 4, y: 11},  // 왼쪽으로
+            {x: 0, y: 7}    // 시작점으로 복귀
+        ]
+    }
+};
+
+// 현재 선택된 맵
+let currentMap = MAPS.STRAIGHT;
 
 // 타워 배열
 let towers = [];
@@ -652,9 +1258,13 @@ const minimapCtx = minimapCanvas.getContext('2d');
 function drawMinimap() {
     minimapCtx.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
     
-    // 맵 그리기
-    minimapCtx.fillStyle = '#eee';
-    path.forEach(point => {
+    // 배경 그리기
+    minimapCtx.fillStyle = '#333';
+    minimapCtx.fillRect(0, 0, minimapCanvas.width, minimapCanvas.height);
+    
+    // 맵 경로 그리기
+    minimapCtx.fillStyle = '#666';
+    currentMap.path.forEach(point => {
         minimapCtx.fillRect(
             point.x * (minimapCanvas.width / GRID_WIDTH),
             point.y * (minimapCanvas.height / GRID_HEIGHT),
@@ -943,8 +1553,8 @@ class Tower {
 class Enemy {
     constructor(wave, isBoss = false) {
         this.pathIndex = 0;
-        this.x = path[0].x;
-        this.y = path[0].y;
+        this.x = currentMap.path[0].x;
+        this.y = currentMap.path[0].y;
         this.baseSpeed = 0.02 + (wave * 0.005);
         this.speed = this.baseSpeed * DIFFICULTY_SETTINGS[gameState.difficulty].enemySpeed;
         this.health = (100 + (wave * 20)) * DIFFICULTY_SETTINGS[gameState.difficulty].enemyHealth;
@@ -981,7 +1591,7 @@ class Enemy {
             this.continuousDamage = Math.max(0, this.continuousDamage * 0.95); // 지속 데미지가 서서히 감소
         }
 
-        if (this.pathIndex >= path.length - 1) {
+        if (this.pathIndex >= currentMap.path.length - 1) {
             gameState.lives--;
             return true;
         }
@@ -1023,8 +1633,8 @@ class Enemy {
         }
         if (this.patternCooldown > 0) this.patternCooldown--;
 
-        const targetX = path[this.pathIndex + 1].x;
-        const targetY = path[this.pathIndex + 1].y;
+        const targetX = currentMap.path[this.pathIndex + 1].x;
+        const targetY = currentMap.path[this.pathIndex + 1].y;
         
         const dx = targetX - this.x;
         const dy = targetY - this.y;
@@ -1142,7 +1752,7 @@ function restartGame() {
 function showPlaceablePositions() {
     for (let i = 0; i < GRID_WIDTH; i++) {
         for (let j = 0; j < GRID_HEIGHT; j++) {
-            const isOnPath = path.some(point => point.x === i && point.y === j);
+            const isOnPath = currentMap.path.some(point => point.x === i && point.y === j);
             const hasTower = towers.some(tower => tower.x === i && tower.y === j);
             
             if (!isOnPath && !hasTower) {
@@ -1344,7 +1954,7 @@ function gameLoop() {
     }
 
     ctx.fillStyle = '#eee';
-    for (let point of path) {
+    for (let point of currentMap.path) {
         ctx.fillRect(point.x * TILE_SIZE, point.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     }
 
@@ -1452,7 +2062,7 @@ canvas.addEventListener('click', (e) => {
         return;
     }
 
-    const isOnPath = path.some(point => point.x === x && point.y === y);
+    const isOnPath = currentMap.path.some(point => point.x === x && point.y === y);
     if (isOnPath) return;
 
     const towerExists = towers.some(tower => tower.x === x && tower.y === y);
@@ -1757,6 +2367,7 @@ function saveGame() {
         achievements: Object.fromEntries(
             Object.entries(ACHIEVEMENTS).map(([key, achievement]) => [key, achievement.unlocked])
         ),
+        currentMap: gameState.currentMap,
         timestamp: Date.now()
     };
     
@@ -1770,7 +2381,6 @@ function loadGame() {
     if (saveData) {
         const data = JSON.parse(saveData);
         
-        // 저장된 게임이 24시간 이상 지났는지 확인
         const saveTime = new Date(data.timestamp);
         const currentTime = new Date();
         const hoursDiff = (currentTime - saveTime) / (1000 * 60 * 60);
@@ -1781,6 +2391,8 @@ function loadGame() {
         }
         
         Object.assign(gameState, data.gameState);
+        selectMap(data.currentMap);
+        
         towers = data.towers.map(towerData => {
             const tower = new Tower(towerData.x, towerData.y, towerData.type);
             tower.experience = towerData.experience;
@@ -1904,6 +2516,24 @@ function showBossPatternEffect(x, y, name) {
         effect.remove();
     }, 2000);
 }
+
+// 맵 선택 함수
+function selectMap(mapKey) {
+    currentMap = MAPS[mapKey];
+    path = [...currentMap.path];
+    // 게임 재시작
+    restartGame();
+}
+
+// 맵 선택 UI 추가
+document.getElementById('mapSelect').addEventListener('change', (e) => {
+    if (!gameState.isStarted) {
+        selectMap(e.target.value);
+        gameState.currentMap = e.target.value;
+        // 미니맵 업데이트
+        drawMinimap();
+    }
+});
 
 // 게임 시작
 gameLoop(); 
