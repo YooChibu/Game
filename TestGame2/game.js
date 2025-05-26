@@ -28,7 +28,7 @@ const gameState = {
 // 난이도 설정
 const DIFFICULTY_SETTINGS = {
     EASY: {
-        gold: 150,
+        gold: 200,
         lives: 25,
         enemyHealth: 0.8,
         enemySpeed: 0.8,
@@ -37,7 +37,7 @@ const DIFFICULTY_SETTINGS = {
         enemySpawnRate: 0.03
     },
     NORMAL: {
-        gold: 100,
+        gold: 150,
         lives: 20,
         enemyHealth: 1,
         enemySpeed: 1,
@@ -46,7 +46,7 @@ const DIFFICULTY_SETTINGS = {
         enemySpawnRate: 0.05
     },
     HARD: {
-        gold: 80,
+        gold: 100,
         lives: 15,
         enemyHealth: 1.3,
         enemySpeed: 1.2,
@@ -2008,6 +2008,7 @@ document.head.insertAdjacentHTML('beforeend', `
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            min-height: 120px;
         }
 
         .tower-card:hover {
@@ -2020,10 +2021,25 @@ document.head.insertAdjacentHTML('beforeend', `
             cursor: not-allowed;
         }
 
+        .tower-cost {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 4px 8px;
+            font-size: clamp(0.8rem, 3vw, 0.9rem);
+            color: gold;
+            text-align: center;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
         .tower-card-header {
             display: flex;
             align-items: center;
             gap: 8px;
+            margin-top: 30px; /* 골드 표시 아래로 여백 추가 */
             margin-bottom: 8px;
         }
 
@@ -2036,23 +2052,16 @@ document.head.insertAdjacentHTML('beforeend', `
             align-items: center;
             justify-content: center;
             font-size: 1.2em;
+            flex-shrink: 0;
         }
 
         .tower-name {
             font-weight: bold;
             color: #4CAF50;
             font-size: clamp(0.9rem, 3.5vw, 1rem);
-        }
-
-        .tower-cost {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: clamp(0.8rem, 3vw, 0.9rem);
-            color: gold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .tower-stats {
