@@ -754,7 +754,7 @@ const TOWER_TYPES = {
         cooldown: 0,
         color: 'yellow',
         buffRange: 3,
-        buffMultiplier: 1.2
+        buffMultiplier: 1.2  // 20% 증가
     }
 };
 
@@ -1094,6 +1094,7 @@ class Tower {
         } else if (type === 'SUPPORT') {
             this.buffRange = towerType.buffRange;
             this.buffMultiplier = towerType.buffMultiplier;
+            this.buffedTowers = new Set(); // 버프된 타워 추적
         }
     }
 
@@ -1298,6 +1299,12 @@ class Tower {
                     break;
 
                 case 'SUPPORT':
+                    // 이전에 버프된 타워들의 데미지 복원
+                    this.buffedTowers.forEach(tower => {
+                        tower.damage = tower.baseDamage * (1 + tower.damageLevel * 0.3);
+                    });
+                    this.buffedTowers.clear();
+
                     // 주변 타워 강화
                     towers.forEach(tower => {
                         if (tower !== this) {
@@ -1306,7 +1313,10 @@ class Tower {
                             const distance = Math.sqrt(dx * dx + dy * dy);
                             
                             if (distance <= this.buffRange * TILE_SIZE) {
-                                tower.damage *= this.buffMultiplier;
+                                // 기본 데미지에 버프 적용
+                                const baseDamage = tower.baseDamage * (1 + tower.damageLevel * 0.3);
+                                tower.damage = baseDamage * this.buffMultiplier;
+                                this.buffedTowers.add(tower);
                             }
                         }
                     });
@@ -1942,7 +1952,7 @@ function getSpecialDescription(type) {
         case 'POISON':
             return '적에게 지속적인 독 데미지를 줍니다.';
         case 'SUPPORT':
-            return '주변 타워의 공격력을 2배로 증가시킵니다.';
+            return '주변 타워의 공격력을 20% 증가시킵니다.';
         case 'BASIC':
             return '기본적인 공격력과 범위를 가진 타워입니다.';
         case 'SNIPER':
@@ -2263,17 +2273,17 @@ function showTowerUpgradeMenu(tower, clientX, clientY) {
         <div class="tower-stats">
             <div class="stat-item">
                 <span class="stat-icon">🎯</span>
-                <span class="stat-value">${tower.range.toFixed(1)}</span>
+                <span class="stat-value">${tower.range.toFixed(2)}</span>
                 <span class="stat-level">(${tower.rangeLevel}/${tower.level})</span>
             </div>
             <div class="stat-item">
                 <span class="stat-icon">⚔️</span>
-                <span class="stat-value">${tower.damage.toFixed(1)}</span>
+                <span class="stat-value">${tower.damage.toFixed(2)}</span>
                 <span class="stat-level">(${tower.damageLevel}/${tower.level})</span>
             </div>
             <div class="stat-item">
                 <span class="stat-icon">⚡</span>
-                <span class="stat-value">${(60/tower.maxCooldown).toFixed(1)}/초</span>
+                <span class="stat-value">${(60/tower.maxCooldown).toFixed(2)}/초</span>
                 <span class="stat-level">(${tower.speedLevel}/${tower.level})</span>
             </div>
             <div class="stat-item">
