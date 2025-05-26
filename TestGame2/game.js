@@ -916,43 +916,44 @@ const ACHIEVEMENTS = {
 
 // 사운드 관리
 const sounds = {
-    bgm: document.getElementById('bgm'),
-    towerPlace: document.getElementById('towerPlace'),
-    enemyDeath: document.getElementById('enemyDeath'),
-    bossSpawn: document.getElementById('bossSpawn'),
-    powerup: document.getElementById('powerup')
+    bgm: new Audio('sounds/bgm.mp3'),
+    tower_place: new Audio('sounds/tower_place.mp3'),
+    tower_attack: new Audio('sounds/tower_attack.mp3'),
+    enemy_death: new Audio('sounds/enemy_death.mp3'),
+    game_start: new Audio('sounds/game_start.mp3'),
+    game_over: new Audio('sounds/game_over.mp3'),
+    ui_click: new Audio('sounds/ui_click.mp3')
 };
 
+// 사운드 설정
 let soundEnabled = true;
 let musicEnabled = true;
 
-// 사운드 재생 함수
-function playSound(sound) {
-    if (soundEnabled && sound && !sound.paused) {
+function playSound(soundName) {
+    if (!soundEnabled) return;
+    const sound = sounds[soundName];
+    if (sound) {
         sound.currentTime = 0;
-        sound.play().catch(() => {
-            // 사운드 재생 실패 시 무시
-        });
+        sound.play().catch(error => console.log('사운드 재생 실패:', error));
     }
 }
 
-// 사운드 토글
-document.getElementById('soundToggle').addEventListener('click', () => {
+function toggleSound() {
     soundEnabled = !soundEnabled;
-    document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
-});
+    if (!soundEnabled) {
+        Object.values(sounds).forEach(sound => sound.pause());
+    }
+}
 
-document.getElementById('musicToggle').addEventListener('click', () => {
+function toggleMusic() {
     musicEnabled = !musicEnabled;
-    document.getElementById('musicToggle').textContent = musicEnabled ? '🎵' : '🎵';
-    if (musicEnabled && sounds.bgm) {
-        sounds.bgm.play().catch(() => {
-            // BGM 재생 실패 시 무시
-        });
-    } else if (sounds.bgm) {
+    if (musicEnabled) {
+        sounds.bgm.loop = true;
+        sounds.bgm.play().catch(error => console.log('BGM 재생 실패:', error));
+    } else {
         sounds.bgm.pause();
     }
-});
+}
 
 // 게임 통계
 const gameStats = {
@@ -1386,7 +1387,7 @@ class Tower {
         this.upgradeLevel = 1;
         this.maxUpgradeLevel = 5;
         this.upgradeCost = calculateUpgradeCost(TOWER_TYPES[type].upgradeCost, this.upgradeLevel);
-        playSound(sounds.towerPlace);
+        playSound('tower_place');
     }
 
     upgrade() {
@@ -1405,7 +1406,7 @@ class Tower {
             
             // 업그레이드 이펙트
             showUpgradeEffect(this.x, this.y);
-            playSound(sounds.powerup);
+            playSound('powerup');
         }
     }
 
@@ -1465,6 +1466,9 @@ class Tower {
             
             if (distance <= this.range * TILE_SIZE) {
                 let damage = Math.floor(this.damage * this.comboBonus);
+                
+                // 공격 사운드 재생
+                playSound('tower_attack');
                 
                 switch(this.special) {
                     case 'pierce':
@@ -1530,7 +1534,7 @@ class Tower {
             
             // 레벨업 이펙트
             showUpgradeEffect(this.x, this.y);
-            playSound(sounds.powerup);
+            playSound('powerup');
         }
     }
 
@@ -1579,7 +1583,7 @@ class Enemy {
             this.abilityCooldown = 0;
             gameState.bossKilled = false;
             this.pattern = BOSS_PATTERNS[bossType];
-            playSound(sounds.bossSpawn);
+            playSound('bossSpawn');
         }
     }
 
@@ -1619,7 +1623,7 @@ class Enemy {
                     gameStats.bossesKilled++;
                     gameState.bossKilled = true;
                 }
-                playSound(sounds.enemyDeath);
+                playSound('enemy_death');
                 updateStats();
             }
             return true;
@@ -1828,7 +1832,7 @@ function startWave() {
     
     // 웨이브 시작 이펙트
     showWaveStartEffect();
-    playSound(sounds.powerup);
+    playSound('powerup');
 }
 
 // 웨이브 시작 이펙트
@@ -1932,7 +1936,7 @@ function checkWaveEnd() {
         showRewardPopup(reward);
         
         // 웨이브 클리어 효과음
-        playSound(sounds.powerup);
+        playSound('powerup');
     }
 }
 
@@ -2129,7 +2133,7 @@ document.querySelectorAll('.powerup-item').forEach(item => {
         if (gameState.gold >= powerup.cost) {
             gameState.gold -= powerup.cost;
             powerup.effect();
-            playSound(sounds.powerup);
+            playSound('powerup');
         }
     });
 });
@@ -2223,7 +2227,7 @@ function showTowerBuildMenu(x, y, clientX, clientY) {
                 gameState.gold -= tower.cost;
                 gameState.towerCount++;
                 updateTowerLimit();
-                playSound(sounds.towerPlace);
+                playSound('tower_place');
                 if (towerMenu.parentNode) {
                     towerMenu.parentNode.removeChild(towerMenu);
                 }
