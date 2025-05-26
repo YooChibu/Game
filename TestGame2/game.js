@@ -1956,66 +1956,245 @@ function getSpecialDescription(type) {
     }
 }
 
+// CSS 스타일 추가
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        /* 타워 설치 메뉴 스타일 */
+        .tower-build-menu {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-family: Arial, sans-serif;
+            z-index: 1000;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+            width: 90%;
+            max-width: 300px;
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%);
+        }
+
+        .tower-build-header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #4CAF50;
+        }
+
+        .tower-build-header h2 {
+            margin: 0;
+            color: #4CAF50;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+        }
+
+        .tower-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .tower-card {
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tower-card:hover {
+            background: rgba(76, 175, 80, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .tower-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .tower-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .tower-icon {
+            width: 32px;
+            height: 32px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .tower-name {
+            font-weight: bold;
+            color: #4CAF50;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+        }
+
+        .tower-cost {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: clamp(0.8rem, 3vw, 0.9rem);
+            color: gold;
+        }
+
+        .tower-stats {
+            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+            color: #ccc;
+            margin-top: 8px;
+        }
+
+        .tower-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .tower-stat-label {
+            color: #888;
+        }
+
+        .tower-stat-value {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .tower-description {
+            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+            color: #888;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .tower-range-preview {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.3;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        /* 모바일 터치 최적화 */
+        @media (hover: none) {
+            .tower-card:active:not(.disabled) {
+                background: rgba(76, 175, 80, 0.2);
+                transform: translateY(-2px);
+            }
+        }
+
+        /* 스크롤바 스타일링 */
+        .tower-build-menu::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .tower-build-menu::-webkit-scrollbar-track {
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 4px;
+        }
+
+        .tower-build-menu::-webkit-scrollbar-thumb {
+            background: #4CAF50;
+            border-radius: 4px;
+        }
+
+        .tower-build-menu::-webkit-scrollbar-thumb:hover {
+            background: #45a049;
+        }
+
+        /* 그리드 하이라이트 스타일 */
+        .grid-highlight {
+            position: absolute;
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            border-radius: 4px;
+            pointer-events: none;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+    </style>
+`);
+
+// 타워 설치 메뉴 표시 함수 수정
 function showTowerBuildMenu(x, y, clientX, clientY) {
     if (gameState.towerCount >= gameState.maxTowers) {
         showSaveLoadNotification('타워 설치 한도에 도달했습니다!');
         return;
     }
 
-    const existingMenu = document.querySelector('.tower-menu');
+    const existingMenu = document.querySelector('.tower-build-menu');
     if (existingMenu && existingMenu.parentNode) {
         existingMenu.parentNode.removeChild(existingMenu);
     }
 
     const towerMenu = document.createElement('div');
-    towerMenu.className = 'tower-menu';
-    
-    const menuWidth = 300;
-    const menuHeight = Object.keys(TOWER_TYPES).length * 120;
-    
-    let menuX = clientX;
-    let menuY = clientY;
-    
-    if (menuX + menuWidth/2 > window.innerWidth) {
-        menuX = window.innerWidth - menuWidth/2;
-    }
-    if (menuX - menuWidth/2 < 0) {
-        menuX = menuWidth/2;
-    }
-    if (menuY + menuHeight/2 > window.innerHeight) {
-        menuY = window.innerHeight - menuHeight/2;
-    }
-    if (menuY - menuHeight/2 < 0) {
-        menuY = menuHeight/2;
-    }
-    
-    towerMenu.style.left = `${menuX}px`;
-    towerMenu.style.top = `${menuY}px`;
+    towerMenu.className = 'tower-build-menu';
 
-    const highlight = highlightGrid(x, y);
+    const header = document.createElement('div');
+    header.className = 'tower-build-header';
+    header.innerHTML = `
+        <h2>타워 설치</h2>
+        <p>골드: ${gameState.gold}</p>
+    `;
+    towerMenu.appendChild(header);
+
+    const towerList = document.createElement('div');
+    towerList.className = 'tower-list';
 
     Object.entries(TOWER_TYPES).forEach(([type, tower]) => {
-        const button = document.createElement('button');
-        button.className = 'tower-button';
+        const card = document.createElement('div');
+        card.className = `tower-card ${gameState.gold < tower.cost ? 'disabled' : ''}`;
         
-        const description = document.createElement('div');
-        description.className = 'tower-description';
-        description.innerHTML = `
-            <h3>${tower.name}</h3>
-            <p>비용: ${tower.cost} 골드</p>
-            <p>공격력: ${tower.damage}</p>
-            <p>범위: ${tower.range}</p>
-            <p>특수 능력: ${getSpecialDescription(type)}</p>
+        card.innerHTML = `
+            <div class="tower-card-header">
+                <div class="tower-icon" style="background: ${tower.color}">${type[0]}</div>
+                <div class="tower-name">${tower.name}</div>
+            </div>
+            <div class="tower-cost">${tower.cost} 골드</div>
+            <div class="tower-stats">
+                <div class="tower-stat">
+                    <span class="tower-stat-label">공격력</span>
+                    <span class="tower-stat-value">${tower.damage}</span>
+                </div>
+                <div class="tower-stat">
+                    <span class="tower-stat-label">범위</span>
+                    <span class="tower-stat-value">${tower.range}</span>
+                </div>
+                <div class="tower-stat">
+                    <span class="tower-stat-label">쿨다운</span>
+                    <span class="tower-stat-value">${(tower.cooldown/60).toFixed(2)}초</span>
+                </div>
+            </div>
+            <div class="tower-description">${getSpecialDescription(type)}</div>
         `;
-        
-        button.appendChild(description);
-        button.disabled = gameState.gold < tower.cost;
-        
-        button.onmouseover = () => showTowerRangePreview(x, y, tower.range, type);
-        button.onmouseout = hideTowerRangePreview;
-        
-        button.onclick = () => {
-            if (gameState.gold >= tower.cost) {
+
+        if (gameState.gold >= tower.cost) {
+            card.onmouseover = () => showTowerRangePreview(x, y, tower.range, type);
+            card.onmouseout = hideTowerRangePreview;
+            
+            card.onclick = () => {
                 towers.push(new Tower(x, y, type));
                 gameState.gold -= tower.cost;
                 gameState.towerCount++;
@@ -2024,14 +2203,15 @@ function showTowerBuildMenu(x, y, clientX, clientY) {
                 if (towerMenu.parentNode) {
                     towerMenu.parentNode.removeChild(towerMenu);
                 }
-                highlight.remove();
-            } else {
-                showInsufficientGold();
-            }
-        };
-        towerMenu.appendChild(button);
+                const highlight = document.querySelector('.grid-highlight');
+                if (highlight) highlight.remove();
+            };
+        }
+        
+        towerList.appendChild(card);
     });
 
+    towerMenu.appendChild(towerList);
     document.body.appendChild(towerMenu);
     setupMenuCloseHandler(towerMenu);
 }
@@ -2490,6 +2670,9 @@ function drawMinimap() {
 }
 
 // 타워 조합 체크 함수
+// 이미 표시된 조합을 추적하는 전역 배열 추가
+let shownCombos = [];
+
 function checkTowerCombos() {
     Object.entries(TOWER_COMBOS).forEach(([comboKey, combo]) => {
         // 조합 조건을 만족하는지 확인
@@ -2500,12 +2683,13 @@ function checkTowerCombos() {
             combo.effect(towers);
             
             // 조합 이펙트 표시 (이미 표시되지 않은 경우에만)
-            if (!towers.some(tower => tower.activeCombos?.includes(comboKey))) {
+            if (!shownCombos.includes(comboKey)) {
                 towers.forEach(tower => {
                     if (!tower.activeCombos) tower.activeCombos = [];
                     tower.activeCombos.push(comboKey);
                 });
                 showComboEffect(combo.name);
+                shownCombos.push(comboKey);
             }
         } else {
             // 조합이 해제된 경우
@@ -2517,6 +2701,11 @@ function checkTowerCombos() {
                     }
                 }
             });
+            // 조합이 해제되면 shownCombos에서도 제거
+            const shownIdx = shownCombos.indexOf(comboKey);
+            if (shownIdx > -1) {
+                shownCombos.splice(shownIdx, 1);
+            }
         }
     });
 }
@@ -2607,198 +2796,6 @@ document.head.insertAdjacentHTML('beforeend', `
             20% { opacity: 1; }
             80% { opacity: 1; }
             100% { opacity: 0; }
-        }
-    </style>
-`);
-
-// CSS 스타일 추가
-document.head.insertAdjacentHTML('beforeend', `
-    <style>
-        .tower-menu {
-            position: fixed;
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid #4CAF50;
-            border-radius: 10px;
-            padding: 15px;
-            color: white;
-            font-family: Arial, sans-serif;
-            z-index: 1000;
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
-        }
-
-        .tower-header {
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #4CAF50;
-        }
-
-        .tower-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .tower-title h3 {
-            margin: 0;
-            color: #4CAF50;
-        }
-
-        .tower-level {
-            background: #4CAF50;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.9em;
-        }
-
-        .tower-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.9em;
-        }
-
-        .stat-icon {
-            font-size: 1.2em;
-        }
-
-        .stat-value {
-            color: #4CAF50;
-            font-weight: bold;
-        }
-
-        .stat-level {
-            color: #888;
-            font-size: 0.8em;
-        }
-
-        .upgrade-section {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .upgrade-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(76, 175, 80, 0.1);
-            padding: 10px;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-        .upgrade-item:hover {
-            background: rgba(76, 175, 80, 0.2);
-        }
-
-        .upgrade-info {
-            flex: 1;
-        }
-
-        .upgrade-header {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-bottom: 5px;
-        }
-
-        .upgrade-icon {
-            font-size: 1.2em;
-        }
-
-        .upgrade-name {
-            font-weight: bold;
-            color: #4CAF50;
-        }
-
-        .upgrade-description {
-            font-size: 0.8em;
-            color: #888;
-            margin-bottom: 5px;
-        }
-
-        .upgrade-progress {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .progress-bar {
-            flex: 1;
-            height: 4px;
-            background: #333;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #4CAF50;
-            transition: width 0.3s;
-        }
-
-        .progress-text {
-            font-size: 0.8em;
-            color: #888;
-        }
-
-        .upgrade-button {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .upgrade-button:hover:not(:disabled) {
-            background: #45a049;
-        }
-
-        .upgrade-button:disabled {
-            background: #666;
-            cursor: not-allowed;
-        }
-
-        .sell-section {
-            text-align: center;
-        }
-
-        .sell-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            width: 100%;
-            background: #f44336;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .sell-button:hover {
-            background: #d32f2f;
-        }
-
-        .sell-icon {
-            font-size: 1.2em;
-        }
-
-        .sell-value {
-            margin-left: auto;
-            font-weight: bold;
         }
     </style>
 `);
