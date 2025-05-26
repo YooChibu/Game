@@ -2951,3 +2951,46 @@ document.head.insertAdjacentHTML('beforeend', `
         }
     </style>
 `);
+
+// 보스 패턴 정의
+const BOSS_PATTERNS = {
+    TANK: {
+        name: '방어막',
+        cooldown: 300,
+        effect: (boss) => {
+            boss.isInvincible = true;
+            boss.defense = 50;
+            setTimeout(() => {
+                boss.isInvincible = false;
+                boss.defense = 0;
+            }, 5000);
+        }
+    },
+    SPEED: {
+        name: '돌진',
+        cooldown: 200,
+        effect: (boss) => {
+            const currentIndex = boss.pathIndex;
+            if (currentIndex + 3 < currentMap.path.length) {
+                boss.x = currentMap.path[currentIndex + 3].x;
+                boss.y = currentMap.path[currentIndex + 3].y;
+                boss.pathIndex += 3;
+            }
+        }
+    },
+    SUMMONER: {
+        name: '소환',
+        cooldown: 400,
+        effect: (boss) => {
+            for (let i = 0; i < 3; i++) {
+                const enemy = new Enemy(gameState.wave);
+                enemy.x = boss.x;
+                enemy.y = boss.y;
+                enemy.health = 50;
+                enemy.maxHealth = 50;
+                enemy.speed = 0.03;
+                enemies.push(enemy);
+            }
+        }
+    }
+};
