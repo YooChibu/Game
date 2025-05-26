@@ -784,7 +784,7 @@ const TOWER_TYPES = {
         special: {
             name: '과열 레이저',
             description: '10초 동안 연속 데미지가 3배로 증가합니다.',
-            cooldown: 60,
+        cooldown: 60,
             duration: 10,
             effect: (tower) => {
                 tower.continuousDamage *= 3;
@@ -1082,7 +1082,7 @@ const TOWER_COMBOS = {
             if (iceTower && poisonTower) {
                 poisonTower.poisonDamage *= 1.5;
                 iceTower.freezeDuration += 2;
-            }
+                    }
         }
     },
     SUPPORT_NETWORK: {
@@ -1190,14 +1190,14 @@ class Tower {
             this.buffMultiplier = towerType.buffMultiplier;
             this.buffedTowers = new Set(); // 버프된 타워 추적
         }
-    }
+}
 
     // 업그레이드 비용 계산
     getUpgradeCost(upgradeType) {
         const baseCost = 100;
         const level = this[`${upgradeType}Level`];
         return Math.floor(baseCost * Math.pow(1.5, level));
-    }
+}
 
     // 업그레이드 가능 여부 확인
     canUpgrade(upgradeType) {
@@ -1242,7 +1242,7 @@ class Tower {
             this.getUpgradeCost('speed') +
             this.getUpgradeCost('bullet');
         return Math.floor(totalUpgradeCost * 0.7);
-    }
+        }
 
     gainExperience(amount) {
         this.experience += amount;
@@ -1294,7 +1294,7 @@ class Tower {
             TILE_SIZE - 10,
             TILE_SIZE - 10
         );
-
+        
         // 타워 레벨 표시
         ctx.fillStyle = 'white';
         ctx.font = '12px Arial';
@@ -1304,7 +1304,7 @@ class Tower {
             this.x * TILE_SIZE + TILE_SIZE/2,
             this.y * TILE_SIZE + TILE_SIZE/2 + 4
         );
-
+        
         // 타워 범위 표시 (항상 표시)
         ctx.strokeStyle = this.color;
         ctx.lineWidth = 1;
@@ -1424,8 +1424,8 @@ class Tower {
                                 const baseDamage = tower.baseDamage * (1 + tower.damageLevel * 0.3);
                                 tower.damage = baseDamage * this.buffMultiplier;
                                 this.buffedTowers.add(tower);
-                            }
-                        }
+        }
+    }
                     });
                     break;
             }
@@ -1592,6 +1592,13 @@ function showCountdown() {
     
     isCountdownActive = true;
     const countdown = document.getElementById('countdown');
+    if (!countdown) {
+        console.error('카운트다운 요소를 찾을 수 없습니다.');
+        isCountdownActive = false;
+        startWave();
+        return;
+    }
+    
     countdown.style.display = 'block';
     countdown.textContent = ''; // 카운트다운 시작 시 텍스트 초기화
     let count = 3;
@@ -1734,13 +1741,19 @@ function showWaveStartEffect() {
 
 // 정보 바 업데이트
 function updateInfoBar() {
-    document.getElementById('infoGold').textContent = `골드: ${gameState.gold}`;
-    document.getElementById('infoLives').textContent = `생명: ${gameState.lives}`;
-    document.getElementById('infoWave').textContent = `웨이브: ${gameState.wave}`;
-    document.getElementById('infoScore').textContent = `점수: ${gameState.score}`;
-    document.getElementById('infoDifficulty').textContent = `난이도: ${gameState.difficulty}`;
-    document.getElementById('infoLevel').textContent = `레벨: ${gameState.level}`;
-    document.getElementById('infoExp').textContent = `경험치: ${gameState.experience}/${gameState.experienceToNextLevel}`;
+    const elements = {
+        'infoGold': `골드: ${gameState.gold}`,
+        'infoLives': `생명: ${gameState.lives}`,
+        'infoWave': `웨이브: ${gameState.wave}`,
+        'infoScore': `점수: ${gameState.score}`
+    };
+
+    for (const [id, text] of Object.entries(elements)) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = text;
+        }
+    }
 }
 
 // 웨이브 진행 상황 업데이트
@@ -2216,7 +2229,7 @@ document.head.insertAdjacentHTML('beforeend', `
             opacity: 0.3;
             transition: all 0.3s ease;
             z-index: 999;
-        }
+    }
 
         /* 모바일 터치 최적화 */
         @media (hover: none) {
@@ -2229,7 +2242,7 @@ document.head.insertAdjacentHTML('beforeend', `
         /* 스크롤바 스타일링 */
         .tower-build-menu::-webkit-scrollbar {
             width: 8px;
-        }
+    }
 
         .tower-build-menu::-webkit-scrollbar-track {
             background: rgba(76, 175, 80, 0.1);
@@ -2269,7 +2282,7 @@ function showTowerBuildMenu(x, y, clientX, clientY) {
         showSaveLoadNotification('타워 설치 한도에 도달했습니다!');
         return;
     }
-
+    
     const existingMenu = document.querySelector('.tower-build-menu');
     if (existingMenu && existingMenu.parentNode) {
         existingMenu.parentNode.removeChild(existingMenu);
@@ -2503,13 +2516,34 @@ function showDamageNumber(x, y, damage) {
     const damageElement = document.createElement('div');
     damageElement.className = 'damage-number';
     damageElement.textContent = Math.floor(damage);
-    damageElement.style.left = `${x * TILE_SIZE + TILE_SIZE/2}px`;
-    damageElement.style.top = `${y * TILE_SIZE}px`;
-    document.querySelector('.game-area').appendChild(damageElement);
     
-    setTimeout(() => {
-        damageElement.remove();
-    }, 1000);
+    // 적의 현재 위치에 데미지 숫자를 표시
+    const enemy = enemies.find(e => e.x === x && e.y === y);
+    if (enemy) {
+        const updatePosition = () => {
+            damageElement.style.left = `${enemy.x * TILE_SIZE + TILE_SIZE/2}px`;
+            damageElement.style.top = `${enemy.y * TILE_SIZE}px`;
+        };
+        
+        // 초기 위치 설정
+        updatePosition();
+        
+        // 애니메이션 중에 위치 업데이트
+        const animationFrame = requestAnimationFrame(function animate() {
+            updatePosition();
+            if (damageElement.parentElement) {
+                requestAnimationFrame(animate);
+            }
+        });
+        
+        document.querySelector('.game-area').appendChild(damageElement);
+        
+        // 1초 후에 요소 제거
+        setTimeout(() => {
+            cancelAnimationFrame(animationFrame);
+            damageElement.remove();
+        }, 1000);
+    }
 }
 
 // 그리드 하이라이트 함수
@@ -2883,10 +2917,10 @@ gameLoop();
 // 게임 통계 업데이트 함수
 function updateStats() {
     // 통계 요소 업데이트
-    document.getElementById('enemiesKilled').textContent = gameStats.enemiesKilled;
-    document.getElementById('bossesKilled').textContent = gameStats.bossesKilled;
-    document.getElementById('totalGold').textContent = gameStats.totalGold;
-    document.getElementById('highestWave').textContent = gameStats.highestWave;
+    document.getElementById('enemiesKilled').textContent = `처치한 적: ${gameStats.enemiesKilled}`;
+    document.getElementById('bossesKilled').textContent = `처치한 보스: ${gameStats.bossesKilled}`;
+    document.getElementById('totalGold').textContent = `총 획득 골드: ${gameStats.totalGold}`;
+    document.getElementById('highestWave').textContent = `최고 웨이브: ${gameStats.highestWave}`;
     
     // 업적 업데이트
     Object.entries(ACHIEVEMENTS).forEach(([key, achievement]) => {
@@ -2994,3 +3028,269 @@ const BOSS_PATTERNS = {
         }
     }
 };
+
+// CSS 스타일 추가
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        /* 게임 컨테이너 스타일 */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            min-height: 100vh;
+        }
+
+        /* 게임 영역 스타일 */
+        .game-area {
+            position: relative;
+            background: #2a2a2a;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* 정보 바 스타일 */
+        .info-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 15px;
+            background: #2a2a2a;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #333;
+            border-radius: 8px;
+            color: #fff;
+        }
+
+        .info-icon {
+            font-size: 1.5em;
+            color: #4CAF50;
+        }
+
+        /* 컨트롤 버튼 스타일 */
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .control-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        /* 미니맵 스타일 */
+        .minimap-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #minimapCanvas {
+            border: 2px solid #4CAF50;
+            border-radius: 4px;
+        }
+
+        /* 웨이브 진행 바 스타일 */
+        .wave-progress {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .wave-progress .fill {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s ease;
+        }
+
+        /* 알림 메시지 스타일 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translate(-50%, -100%); }
+            to { transform: translate(-50%, 0); }
+        }
+
+        /* 타워 메뉴 스타일 */
+        .tower-menu {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            z-index: 1000;
+            min-width: 300px;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .tower-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #4CAF50;
+        }
+
+        .tower-menu-title {
+            font-size: 1.2em;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        /* 업그레이드 버튼 스타일 */
+        .upgrade-button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upgrade-button:hover:not(:disabled) {
+            background: #45a049;
+        }
+
+        .upgrade-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 10px;
+            }
+
+            .info-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .control-buttons {
+                flex-wrap: wrap;
+            }
+
+            .control-button {
+                flex: 1 1 calc(50% - 10px);
+            }
+
+            .minimap-container {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-top: 15px;
+            }
+        }
+    </style>
+`);
+
+// CSS 스타일 추가
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        /* 카운트다운 스타일 */
+        .countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 72px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+        }
+
+        /* 기존 스타일 */
+        .combo-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: gold;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        .achievement {
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+
+        .achievement.unlocked {
+            opacity: 1;
+            color: gold;
+        }
+
+        #eventsList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #eventsList li {
+            padding: 5px 0;
+            border-bottom: 1px solid #ccc;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+`);
