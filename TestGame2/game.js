@@ -698,48 +698,63 @@ let towers = [];
 // 적 배열
 let enemies = [];
 
-// 타워 종류 정의
+// 타워 타입 정의
 const TOWER_TYPES = {
     BASIC: {
         name: '기본 타워',
-        cost: 50,
-        range: 3,
-        damage: 10,
-        cooldown: 30,
-        color: 'blue',
-        upgradeCost: 75,
-        special: 'none'
-    },
-    SNIPER: {
-        name: '스나이퍼 타워',
         cost: 100,
-        range: 5,
-        damage: 30,
-        cooldown: 60,
-        color: 'purple',
-        upgradeCost: 150,
-        special: 'pierce' // 관통 공격
+        damage: 10,
+        range: 3,
+        cooldown: 30,
+        color: 'blue'
     },
-    SPLASH: {
-        name: '스플래시 타워',
+    ICE: {
+        name: '얼음 타워',
         cost: 150,
+        damage: 5,
+        range: 3,
+        cooldown: 40,
+        color: 'lightblue',
+        freezeDuration: 2
+    },
+    POISON: {
+        name: '독 타워',
+        cost: 200,
+        damage: 3,
         range: 2,
-        damage: 15,
-        cooldown: 45,
-        color: 'orange',
-        splashRadius: 1,
-        upgradeCost: 200,
-        special: 'slow' // 감속 효과
+        cooldown: 20,
+        color: 'green',
+        poisonDamage: 2,
+        poisonDuration: 5
     },
     LASER: {
         name: '레이저 타워',
-        cost: 200,
+        cost: 250,
+        damage: 15,
         range: 4,
-        damage: 20,
-        cooldown: 20,
+        cooldown: 50,
         color: 'red',
-        upgradeCost: 300,
-        special: 'continuous' // 지속 데미지
+        continuousDamage: 5
+    },
+    SPLASH: {
+        name: '스플래시 타워',
+        cost: 300,
+        damage: 8,
+        range: 2,
+        cooldown: 45,
+        color: 'purple',
+        splashRadius: 1.5,
+        slowEffect: 0.3
+    },
+    SUPPORT: {
+        name: '지원 타워',
+        cost: 200,
+        damage: 0,
+        range: 4,
+        cooldown: 0,
+        color: 'yellow',
+        buffRange: 3,
+        buffMultiplier: 1.2
     }
 };
 
@@ -966,138 +981,64 @@ const gameStats = {
 
 // 타워 조합 정의
 const TOWER_COMBOS = {
-    BASIC_SNIPER: {
-        name: '관통 강화',
-        description: '기본 타워와 스나이퍼 타워의 관통 데미지가 50% 증가합니다.',
-        check: () => {
-            const hasBasic = towers.some(t => t.type === 'BASIC');
-            const hasSniper = towers.some(t => t.type === 'SNIPER');
-            return hasBasic && hasSniper;
-        },
-        effect: () => {
-            towers.forEach(tower => {
-                if (tower.type === 'BASIC' || tower.type === 'SNIPER') {
-                    tower.comboBonus = 1.5;
-                }
-            });
-            // 3초 후에 효과 해제
-            setTimeout(() => {
-                towers.forEach(tower => {
-                    if (tower.type === 'BASIC' || tower.type === 'SNIPER') {
-                        tower.comboBonus = 1;
-                    }
-                });
-            }, 3000);
+    ICE_POISON: {
+        name: '독성 얼음',
+        description: '얼음 타워와 독 타워가 함께 있을 때, 얼음 효과가 독 데미지를 증가시킵니다.',
+        effect: (towers) => {
+            const iceTower = towers.find(t => t.type === 'ICE');
+            const poisonTower = towers.find(t => t.type === 'POISON');
+            if (iceTower && poisonTower) {
+                poisonTower.poisonDamage *= 1.5;
+                iceTower.freezeDuration += 2;
+            }
         }
     },
-    SPLASH_LASER: {
-        name: '범위 강화',
-        description: '스플래시 타워와 레이저 타워의 범위 데미지가 50% 증가합니다.',
-        check: () => {
-            const hasSplash = towers.some(t => t.type === 'SPLASH');
-            const hasLaser = towers.some(t => t.type === 'LASER');
-            return hasSplash && hasLaser;
-        },
-        effect: () => {
-            towers.forEach(tower => {
-                if (tower.type === 'SPLASH' || tower.type === 'LASER') {
-                    tower.comboBonus = 1.5;
-                    if (tower.splashRadius) tower.splashRadius *= 1.5;
-                }
-            });
-            // 3초 후에 효과 해제
-            setTimeout(() => {
+    SUPPORT_NETWORK: {
+        name: '지원 네트워크',
+        description: '지원 타워가 다른 타워들을 강화합니다.',
+        effect: (towers) => {
+            const supportTowers = towers.filter(t => t.type === 'SUPPORT');
+            supportTowers.forEach(support => {
                 towers.forEach(tower => {
-                    if (tower.type === 'SPLASH' || tower.type === 'LASER') {
-                        tower.comboBonus = 1;
-                        if (tower.splashRadius) tower.splashRadius /= 1.5;
+                    if (tower !== support) {
+                        const dx = tower.x - support.x;
+                        const dy = tower.y - support.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance <= support.buffRange) {
+                            tower.damage *= support.buffMultiplier;
+                        }
                     }
                 });
-            }, 3000);
-        }
-    },
-    ALL_TOWERS: {
-        name: '전체 강화',
-        description: '모든 타워의 데미지가 30% 증가합니다.',
-        check: () => {
-            const towerTypes = new Set(towers.map(t => t.type));
-            return towerTypes.size === Object.keys(TOWER_TYPES).length;
-        },
-        effect: () => {
-            towers.forEach(tower => {
-                tower.comboBonus = 1.3;
             });
-            // 3초 후에 효과 해제
-            setTimeout(() => {
-                towers.forEach(tower => {
-                    tower.comboBonus = 1;
-                });
-            }, 3000);
         }
     },
     ELEMENTAL_MASTERY: {
         name: '원소 지배',
-        description: '모든 타워의 특수 효과가 100% 강화됩니다.',
-        check: () => {
-            const hasAllTypes = new Set(towers.map(t => t.type)).size === Object.keys(TOWER_TYPES).length;
-            return hasAllTypes && towers.every(t => t.level >= 3);
-        },
-        effect: () => {
-            towers.forEach(tower => {
-                switch(tower.special) {
-                    case 'pierce':
-                        tower.pierceCount = 3;
-                        break;
-                    case 'slow':
-                        tower.slowEffect = 0.5;
-                        break;
-                    case 'continuous':
-                        tower.continuousDamage *= 2;
-                        break;
-                }
-            });
-            // 3초 후에 효과 해제
-            setTimeout(() => {
+        description: '모든 타워 종류가 설치되어 있을 때, 특수 효과가 100% 강화됩니다.',
+        effect: (towers) => {
+            const hasAllTypes = Object.keys(TOWER_TYPES).every(type => 
+                towers.some(t => t.type === type)
+            );
+            if (hasAllTypes) {
                 towers.forEach(tower => {
-                    switch(tower.special) {
-                        case 'pierce':
-                            tower.pierceCount = 1;
+                    switch(tower.type) {
+                        case 'ICE':
+                            tower.freezeDuration *= 2;
                             break;
-                        case 'slow':
-                            tower.slowEffect = 0.7;
+                        case 'POISON':
+                            tower.poisonDamage *= 2;
+                            tower.poisonDuration *= 2;
                             break;
-                        case 'continuous':
-                            tower.continuousDamage /= 2;
+                        case 'LASER':
+                            tower.continuousDamage *= 2;
+                            break;
+                        case 'SPLASH':
+                            tower.splashRadius *= 1.5;
+                            tower.slowEffect *= 1.5;
                             break;
                     }
                 });
-            }, 3000);
-        }
-    },
-    TACTICAL_FORMATION: {
-        name: '전술적 배치',
-        description: '인접한 타워들이 서로의 공격력을 20% 증가시킵니다.',
-        check: () => {
-            return towers.some(tower => {
-                const adjacentTowers = towers.filter(t => 
-                    Math.abs(t.x - tower.x) <= 1 && Math.abs(t.y - tower.y) <= 1 && t !== tower
-                );
-                return adjacentTowers.length >= 2;
-            });
-        },
-        effect: () => {
-            towers.forEach(tower => {
-                const adjacentTowers = towers.filter(t => 
-                    Math.abs(t.x - tower.x) <= 1 && Math.abs(t.y - tower.y) <= 1 && t !== tower
-                );
-                tower.comboBonus = 1 + (adjacentTowers.length * 0.2);
-            });
-            // 3초 후에 효과 해제
-            setTimeout(() => {
-                towers.forEach(tower => {
-                    tower.comboBonus = 1;
-                });
-            }, 3000);
+            }
         }
     }
 };
@@ -1106,409 +1047,43 @@ const TOWER_COMBOS = {
 const ABILITIES = {
     TOWER_BOOST: {
         name: '전체 타워 강화',
-        cost: 300,
-        duration: 30000,
-        effect: () => {
-            towers.forEach(tower => {
-                tower.damage *= 2;
-            });
-            setTimeout(() => {
-                towers.forEach(tower => {
-                    tower.damage /= 2;
-                });
-            }, 30000);
-        }
-    },
-    ENEMY_SLOW: {
-        name: '적 이동 속도 감소',
-        cost: 200,
-        duration: 20000,
-        effect: () => {
-            enemies.forEach(enemy => {
-                enemy.speed *= 0.5;
-            });
-            setTimeout(() => {
-                enemies.forEach(enemy => {
-                    enemy.speed = enemy.baseSpeed;
-                });
-            }, 20000);
-        }
-    },
-    AUTO_GOLD: {
-        name: '골드 자동 획득',
-        cost: 400,
-        duration: 60000,
-        effect: () => {
-            const interval = setInterval(() => {
-                gameState.gold += 10;
-                gameStats.totalGold += 10;
-                updateStats();
-            }, 5000);
-            setTimeout(() => {
-                clearInterval(interval);
-            }, 60000);
-        }
+        cost: 300
     }
 };
 
-// 타워 특수 능력 정의
-const TOWER_SPECIALS = {
-    BASIC: {
-        name: '강화 사격',
-        description: '공격력이 2배로 증가합니다.',
-        cooldown: 300,
-        effect: (tower) => {
-            tower.damage *= 2;
-            setTimeout(() => {
-                tower.damage /= 2;
-            }, 5000);
-        }
-    },
-    SNIPER: {
-        name: '관통 강화',
-        description: '관통 횟수가 2배로 증가합니다.',
-        cooldown: 400,
-        effect: (tower) => {
-            tower.pierceCount *= 2;
-            setTimeout(() => {
-                tower.pierceCount /= 2;
-            }, 5000);
-        }
-    },
-    SPLASH: {
-        name: '냉기 폭발',
-        description: '범위 내 모든 적을 3초간 동결시킵니다.',
-        cooldown: 500,
-        effect: (tower) => {
-            enemies.forEach(enemy => {
-                const dx = (enemy.x - tower.x) * TILE_SIZE;
-                const dy = (enemy.y - tower.y) * TILE_SIZE;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance <= tower.range * TILE_SIZE) {
-                    enemy.speed = 0;
-                    setTimeout(() => {
-                        enemy.speed = enemy.baseSpeed;
-                    }, 3000);
-                }
-            });
-        }
-    },
-    LASER: {
-        name: '과열',
-        description: '지속 데미지가 3배로 증가합니다.',
-        cooldown: 450,
-        effect: (tower) => {
-            tower.continuousDamage *= 3;
-            setTimeout(() => {
-                tower.continuousDamage /= 3;
-            }, 5000);
-        }
-    }
-};
+// ... existing code ...
 
-// 보스 몬스터 패턴 개선
-const BOSS_PATTERNS = {
-    TANK: {
-        name: '지진',
-        description: '주변 타워를 5초간 무력화합니다.',
-        cooldown: 300,
-        effect: (boss) => {
-            towers.forEach(tower => {
-                const dx = (tower.x - boss.x) * TILE_SIZE;
-                const dy = (tower.y - boss.y) * TILE_SIZE;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance <= 3 * TILE_SIZE) {
-                    tower.cooldown = 150;
-                }
-            });
-        }
-    },
-    SPEED: {
-        name: '시간 왜곡',
-        description: '모든 타워의 공격 속도를 50% 감소시킵니다.',
-        cooldown: 400,
-        effect: (boss) => {
-            towers.forEach(tower => {
-                tower.maxCooldown *= 2;
-                setTimeout(() => {
-                    tower.maxCooldown /= 2;
-                }, 5000);
-            });
-        }
-    },
-    SUMMONER: {
-        name: '타워 약화',
-        description: '모든 타워의 데미지를 50% 감소시킵니다.',
-        cooldown: 500,
-        effect: (boss) => {
-            towers.forEach(tower => {
-                tower.damage *= 0.5;
-                setTimeout(() => {
-                    tower.damage *= 2;
-                }, 5000);
-            });
-        }
-    }
-};
-
-// 미니맵 캔버스 설정
-const minimapCanvas = document.getElementById('minimapCanvas');
-const minimapCtx = minimapCanvas.getContext('2d');
-
-// 미니맵 그리기
-function drawMinimap() {
-    minimapCtx.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
-    
-    // 배경 그리기
-    minimapCtx.fillStyle = '#333';
-    minimapCtx.fillRect(0, 0, minimapCanvas.width, minimapCanvas.height);
-    
-    // 맵 경로 그리기
-    minimapCtx.fillStyle = '#666';
-    currentMap.path.forEach(point => {
-        minimapCtx.fillRect(
-            point.x * (minimapCanvas.width / GRID_WIDTH),
-            point.y * (minimapCanvas.height / GRID_HEIGHT),
-            minimapCanvas.width / GRID_WIDTH,
-            minimapCanvas.height / GRID_HEIGHT
-        );
-    });
-    
-    // 타워 그리기
-    towers.forEach(tower => {
-        minimapCtx.fillStyle = tower.color;
-        minimapCtx.fillRect(
-            tower.x * (minimapCanvas.width / GRID_WIDTH),
-            tower.y * (minimapCanvas.height / GRID_HEIGHT),
-            minimapCanvas.width / GRID_WIDTH,
-            minimapCanvas.height / GRID_HEIGHT
-        );
-    });
-    
-    // 적 그리기
-    enemies.forEach(enemy => {
-        minimapCtx.fillStyle = enemy.isBoss ? enemy.color : 'red';
-        minimapCtx.fillRect(
-            enemy.x * (minimapCanvas.width / GRID_WIDTH),
-            enemy.y * (minimapCanvas.height / GRID_HEIGHT),
-            minimapCanvas.width / GRID_WIDTH,
-            minimapCanvas.height / GRID_HEIGHT
-        );
-    });
-}
-
-// 통계 업데이트
-function updateStats() {
-    document.getElementById('enemiesKilled').textContent = gameStats.enemiesKilled;
-    document.getElementById('bossesKilled').textContent = gameStats.bossesKilled;
-    document.getElementById('totalGold').textContent = gameStats.totalGold;
-    document.getElementById('highestWave').textContent = gameStats.highestWave;
-}
-
-// 타워 조합 체크
-function checkTowerCombos() {
-    Object.entries(TOWER_COMBOS).forEach(([key, combo]) => {
-        if (combo.check()) {
-            combo.effect();
-            showComboEffect(combo.name, combo.description);
-        }
-    });
-}
-
-// 조합 효과 표시
-function showComboEffect(name, description) {
-    const indicator = document.getElementById('comboIndicator');
-    const descriptionElement = document.getElementById('comboDescription');
-    
-    // 이전 타이머가 있다면 제거
-    if (window.comboTimer) {
-        clearTimeout(window.comboTimer);
-    }
-    
-    descriptionElement.textContent = description;
-    indicator.style.display = 'block';
-    
-    // 3초 후에 팝업을 숨기고 타이머 초기화
-    window.comboTimer = setTimeout(() => {
-        if (indicator) {
-            indicator.style.display = 'none';
-            window.comboTimer = null;
-        }
-    }, 3000);
-}
-
-// 특수 능력 버튼 이벤트
-document.querySelectorAll('.ability-button').forEach((button, index) => {
-    button.addEventListener('click', () => {
-        const ability = Object.values(ABILITIES)[index];
-        if (gameState.gold >= ability.cost) {
-            gameState.gold -= ability.cost;
-            ability.effect();
-            button.disabled = true;
-            setTimeout(() => {
-                button.disabled = false;
-            }, ability.duration);
-        }
-    });
-});
-
-// 타워 업그레이드 비용 계산 함수
-function calculateUpgradeCost(baseCost, level) {
-    return Math.floor(baseCost * Math.pow(1.5, level - 1));
-}
-
-// 타워 클래스
 class Tower {
     constructor(x, y, type) {
         this.x = x;
         this.y = y;
         this.type = type;
         this.level = 1;
-        this.range = TOWER_TYPES[type].range;
-        this.damage = TOWER_TYPES[type].damage;
-        this.cost = TOWER_TYPES[type].cost;
-        this.cooldown = 0;
-        this.maxCooldown = TOWER_TYPES[type].cooldown;
-        this.color = TOWER_TYPES[type].color;
-        this.splashRadius = TOWER_TYPES[type].splashRadius;
-        this.special = TOWER_SPECIALS[type];
-        this.continuousDamage = 0;
-        if (this.special === 'continuous') {
-            this.continuousDamage = Math.floor(this.damage * 0.2);
-        }
-        this.size = TILE_SIZE - 10;
-        this.levelColors = ['#4CAF50', '#2196F3', '#9C27B0', '#FF9800'];
-        this.comboBonus = 1; // 조합 보너스 초기화
         this.experience = 0;
         this.experienceToNextLevel = 100;
-        this.pierceCount = 1;
-        this.slowEffect = 0.7;
         this.specialCooldown = 0;
-        this.upgradeLevel = 1;
-        this.maxUpgradeLevel = 5;
-        this.upgradeCost = calculateUpgradeCost(TOWER_TYPES[type].upgradeCost, this.upgradeLevel);
-        playSound('tower_place');
-    }
-
-    upgrade() {
-        if (this.upgradeLevel < this.maxUpgradeLevel) {
-            this.upgradeLevel++;
-            this.damage = Math.floor(this.damage * 1.5);
-            this.range += 0.5;
-            if (this.splashRadius) this.splashRadius += 0.5;
-            this.maxCooldown = Math.max(10, this.maxCooldown * 0.8);
-            this.upgradeCost = calculateUpgradeCost(TOWER_TYPES[this.type].upgradeCost, this.upgradeLevel);
-            
-            // 특수 능력 강화
-            if (this.special === 'continuous') {
-                this.continuousDamage = Math.floor(this.damage * 0.2);
-            }
-            
-            // 업그레이드 이펙트
-            showUpgradeEffect(this.x, this.y);
-            playSound('powerup');
-        }
-    }
-
-    getUpgradeCost() {
-        return this.upgradeCost;
-    }
-
-    getSellValue() {
-        return Math.floor(this.cost * 0.7 * this.upgradeLevel);
-    }
-
-    draw() {
-        // 타워 크기와 색상 업데이트
-        this.size = TILE_SIZE - 10 + (this.level - 1) * 2;
-        const offset = (TILE_SIZE - this.size) / 2;
         
-        ctx.fillStyle = this.levelColors[Math.min(this.level - 1, this.levelColors.length - 1)];
-        ctx.fillRect(
-            this.x * TILE_SIZE + offset,
-            this.y * TILE_SIZE + offset,
-            this.size,
-            this.size
-        );
+        const towerType = TOWER_TYPES[type];
+        this.damage = towerType.damage;
+        this.range = towerType.range;
+        this.maxCooldown = towerType.cooldown;
+        this.cooldown = 0;
+        this.color = towerType.color;
         
-        // 레벨 표시
-        ctx.fillStyle = 'white';
-        ctx.font = '12px Arial';
-        ctx.fillText(
-            this.level.toString(),
-            this.x * TILE_SIZE + TILE_SIZE/2 - 3,
-            this.y * TILE_SIZE + TILE_SIZE/2 + 3
-        );
-        
-        // 공격 범위 표시
-        ctx.strokeStyle = `${this.color}40`;
-        ctx.beginPath();
-        ctx.arc(
-            this.x * TILE_SIZE + TILE_SIZE/2,
-            this.y * TILE_SIZE + TILE_SIZE/2,
-            this.range * TILE_SIZE,
-            0,
-            Math.PI * 2
-        );
-        ctx.stroke();
-    }
-
-    attack(enemies) {
-        if (this.cooldown > 0) {
-            this.cooldown--;
-            return;
-        }
-
-        for (let enemy of enemies) {
-            const dx = (enemy.x - this.x) * TILE_SIZE;
-            const dy = (enemy.y - this.y) * TILE_SIZE;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            if (distance <= this.range * TILE_SIZE) {
-                let damage = Math.floor(this.damage * this.comboBonus);
-                
-                // 공격 사운드 재생
-                playSound('tower_attack');
-                
-                switch(this.special) {
-                    case 'pierce':
-                        let pierced = 0;
-                        enemies.forEach(e => {
-                            if (Math.abs(e.x - enemy.x) < 1 && Math.abs(e.y - enemy.y) < 1 && pierced < this.pierceCount) {
-                                e.health -= damage * (1 - e.defense);
-                                showDamageNumber(e.x, e.y, damage * (1 - e.defense));
-                                pierced++;
-                            }
-                        });
-                        break;
-                    case 'slow':
-                        enemy.speed *= this.slowEffect;
-                        enemy.health -= damage * (1 - enemy.defense);
-                        showDamageNumber(enemy.x, enemy.y, damage * (1 - enemy.defense));
-                        setTimeout(() => {
-                            enemy.speed = enemy.baseSpeed;
-                        }, 1000);
-                        break;
-                    case 'continuous':
-                        const continuousDamage = Math.floor(this.continuousDamage * this.comboBonus);
-                        enemy.continuousDamage = (enemy.continuousDamage || 0) + continuousDamage;
-                        showDamageNumber(enemy.x, enemy.y, continuousDamage);
-                        break;
-                    default:
-                        enemy.health -= damage;
-                        showDamageNumber(enemy.x, enemy.y, damage);
-                }
-                
-                this.cooldown = this.maxCooldown;
-                
-                // 공격 이펙트 그리기
-                ctx.strokeStyle = this.color;
-                ctx.beginPath();
-                ctx.moveTo(this.x * TILE_SIZE + TILE_SIZE/2, this.y * TILE_SIZE + TILE_SIZE/2);
-                ctx.lineTo(enemy.x * TILE_SIZE + TILE_SIZE/2, enemy.y * TILE_SIZE + TILE_SIZE/2);
-                ctx.stroke();
-                break;
-            }
+        // 특수 능력 초기화
+        if (type === 'SPLASH') {
+            this.splashRadius = towerType.splashRadius;
+            this.slowEffect = towerType.slowEffect;
+        } else if (type === 'POISON') {
+            this.poisonDamage = towerType.poisonDamage;
+            this.poisonDuration = towerType.poisonDuration;
+        } else if (type === 'ICE') {
+            this.freezeDuration = towerType.freezeDuration;
+        } else if (type === 'LASER') {
+            this.continuousDamage = towerType.continuousDamage;
+        } else if (type === 'SUPPORT') {
+            this.buffRange = towerType.buffRange;
+            this.buffMultiplier = towerType.buffMultiplier;
         }
     }
 
@@ -1528,7 +1103,7 @@ class Tower {
             this.maxCooldown = Math.max(10, this.maxCooldown * 0.8);
             
             // 특수 능력 강화
-            if (this.special === 'continuous') {
+            if (this.type === 'LASER') {
                 this.continuousDamage = Math.floor(this.damage * 0.2);
             }
             
@@ -1549,6 +1124,134 @@ class Tower {
     update() {
         if (this.specialCooldown > 0) {
             this.specialCooldown--;
+        }
+    }
+
+    draw() {
+        // 타워 기본 모양 그리기
+        ctx.fillStyle = this.color;
+        ctx.fillRect(
+            this.x * TILE_SIZE + 5,
+            this.y * TILE_SIZE + 5,
+            TILE_SIZE - 10,
+            TILE_SIZE - 10
+        );
+
+        // 타워 레벨 표시
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(
+            this.level.toString(),
+            this.x * TILE_SIZE + TILE_SIZE/2,
+            this.y * TILE_SIZE + TILE_SIZE/2 + 4
+        );
+
+        // 타워 범위 표시 (디버그 모드일 때만)
+        if (gameState.debugMode) {
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(
+                this.x * TILE_SIZE + TILE_SIZE/2,
+                this.y * TILE_SIZE + TILE_SIZE/2,
+                this.range * TILE_SIZE,
+                0,
+                Math.PI * 2
+            );
+            ctx.stroke();
+        }
+
+        // 쿨다운 표시
+        if (this.cooldown > 0) {
+            const cooldownPercentage = this.cooldown / this.maxCooldown;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(
+                this.x * TILE_SIZE + 5,
+                this.y * TILE_SIZE + 5,
+                (TILE_SIZE - 10) * cooldownPercentage,
+                TILE_SIZE - 10
+            );
+        }
+    }
+
+    attack(enemies) {
+        if (this.cooldown > 0) {
+            this.cooldown--;
+            return;
+        }
+
+        // 범위 내 적 찾기
+        const target = enemies.find(enemy => {
+            const dx = (enemy.x - this.x) * TILE_SIZE;
+            const dy = (enemy.y - this.y) * TILE_SIZE;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance <= this.range * TILE_SIZE;
+        });
+
+        if (target) {
+            // 공격 효과음 재생
+            playSound('tower_attack');
+
+            // 타워 종류별 공격 효과
+            switch(this.type) {
+                case 'BASIC':
+                    target.health -= this.damage;
+                    showDamageNumber(target.x, target.y, this.damage);
+                    break;
+
+                case 'ICE':
+                    target.health -= this.damage;
+                    target.speed *= 0.5;
+                    target.freezeDuration = this.freezeDuration;
+                    showDamageNumber(target.x, target.y, this.damage);
+                    break;
+
+                case 'POISON':
+                    target.health -= this.damage;
+                    target.poisonDamage = this.poisonDamage;
+                    target.poisonDuration = this.poisonDuration;
+                    showDamageNumber(target.x, target.y, this.damage);
+                    break;
+
+                case 'LASER':
+                    target.health -= this.damage;
+                    target.continuousDamage = this.continuousDamage;
+                    showDamageNumber(target.x, target.y, this.damage);
+                    break;
+
+                case 'SPLASH':
+                    // 범위 내 모든 적에게 데미지
+                    enemies.forEach(enemy => {
+                        const dx = (enemy.x - this.x) * TILE_SIZE;
+                        const dy = (enemy.y - this.y) * TILE_SIZE;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance <= this.splashRadius * TILE_SIZE) {
+                            enemy.health -= this.damage;
+                            enemy.speed *= (1 - this.slowEffect);
+                            showDamageNumber(enemy.x, enemy.y, this.damage);
+                        }
+                    });
+                    break;
+
+                case 'SUPPORT':
+                    // 주변 타워 강화
+                    towers.forEach(tower => {
+                        if (tower !== this) {
+                            const dx = (tower.x - this.x) * TILE_SIZE;
+                            const dy = (tower.y - this.y) * TILE_SIZE;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (distance <= this.buffRange * TILE_SIZE) {
+                                tower.damage *= this.buffMultiplier;
+                            }
+                        }
+                    });
+                    break;
+            }
+
+            this.cooldown = this.maxCooldown;
         }
     }
 }
@@ -2170,6 +1873,27 @@ document.getElementById('loadBtn').addEventListener('click', () => {
     loadGame();
 });
 
+function getSpecialDescription(type) {
+    switch(type) {
+        case 'ICE':
+            return '범위 내 모든 적을 5초 동안 얼립니다.';
+        case 'POISON':
+            return '적에게 지속적인 독 데미지를 줍니다.';
+        case 'SUPPORT':
+            return '주변 타워의 공격력을 2배로 증가시킵니다.';
+        case 'BASIC':
+            return '기본적인 공격력과 범위를 가진 타워입니다.';
+        case 'SNIPER':
+            return '관통 공격이 가능한 타워입니다.';
+        case 'SPLASH':
+            return '범위 공격과 감속 효과를 가진 타워입니다.';
+        case 'LASER':
+            return '지속적인 데미지를 주는 타워입니다.';
+        default:
+            return '특수 능력이 없습니다.';
+    }
+}
+
 function showTowerBuildMenu(x, y, clientX, clientY) {
     if (gameState.towerCount >= gameState.maxTowers) {
         showSaveLoadNotification('타워 설치 한도에 도달했습니다!');
@@ -2184,26 +1908,21 @@ function showTowerBuildMenu(x, y, clientX, clientY) {
     const towerMenu = document.createElement('div');
     towerMenu.className = 'tower-menu';
     
-    // 화면 경계를 벗어나지 않도록 위치 조정
-    const menuWidth = 200; // 메뉴의 최대 너비
-    const menuHeight = Object.keys(TOWER_TYPES).length * 40; // 버튼 높이 * 버튼 개수
+    const menuWidth = 300;
+    const menuHeight = Object.keys(TOWER_TYPES).length * 120;
     
     let menuX = clientX;
     let menuY = clientY;
     
-    // 화면 오른쪽 경계 체크
     if (menuX + menuWidth/2 > window.innerWidth) {
         menuX = window.innerWidth - menuWidth/2;
     }
-    // 화면 왼쪽 경계 체크
     if (menuX - menuWidth/2 < 0) {
         menuX = menuWidth/2;
     }
-    // 화면 아래쪽 경계 체크
     if (menuY + menuHeight/2 > window.innerHeight) {
         menuY = window.innerHeight - menuHeight/2;
     }
-    // 화면 위쪽 경계 체크
     if (menuY - menuHeight/2 < 0) {
         menuY = menuHeight/2;
     }
@@ -2215,7 +1934,19 @@ function showTowerBuildMenu(x, y, clientX, clientY) {
 
     Object.entries(TOWER_TYPES).forEach(([type, tower]) => {
         const button = document.createElement('button');
-        button.textContent = `${tower.name} (${tower.cost} 골드)`;
+        button.className = 'tower-button';
+        
+        const description = document.createElement('div');
+        description.className = 'tower-description';
+        description.innerHTML = `
+            <h3>${tower.name}</h3>
+            <p>비용: ${tower.cost} 골드</p>
+            <p>공격력: ${tower.damage}</p>
+            <p>범위: ${tower.range}</p>
+            <p>특수 능력: ${getSpecialDescription(type)}</p>
+        `;
+        
+        button.appendChild(description);
         button.disabled = gameState.gold < tower.cost;
         
         button.onmouseover = () => showTowerRangePreview(x, y, tower.range, type);
@@ -2545,5 +2276,180 @@ document.getElementById('mapSelect').addEventListener('change', (e) => {
     }
 });
 
+// 미니맵 그리기 함수
+function drawMinimap() {
+    const minimapCanvas = document.getElementById('minimap');
+    if (!minimapCanvas) return;
+    
+    const minimapCtx = minimapCanvas.getContext('2d');
+    const minimapWidth = minimapCanvas.width;
+    const minimapHeight = minimapCanvas.height;
+    
+    // 미니맵 배경 지우기
+    minimapCtx.clearRect(0, 0, minimapWidth, minimapHeight);
+    
+    // 미니맵 배경색 설정
+    minimapCtx.fillStyle = '#333';
+    minimapCtx.fillRect(0, 0, minimapWidth, minimapHeight);
+    
+    // 경로 그리기
+    minimapCtx.strokeStyle = '#666';
+    minimapCtx.lineWidth = 2;
+    minimapCtx.beginPath();
+    
+    const scaleX = minimapWidth / GRID_WIDTH;
+    const scaleY = minimapHeight / GRID_HEIGHT;
+    
+    currentMap.path.forEach((point, index) => {
+        const x = point.x * scaleX;
+        const y = point.y * scaleY;
+        
+        if (index === 0) {
+            minimapCtx.moveTo(x, y);
+        } else {
+            minimapCtx.lineTo(x, y);
+        }
+    });
+    
+    minimapCtx.stroke();
+    
+    // 타워 표시
+    towers.forEach(tower => {
+        const x = tower.x * scaleX;
+        const y = tower.y * scaleY;
+        
+        minimapCtx.fillStyle = tower.color;
+        minimapCtx.fillRect(x - 2, y - 2, 4, 4);
+    });
+    
+    // 적 표시
+    enemies.forEach(enemy => {
+        const x = enemy.x * scaleX;
+        const y = enemy.y * scaleY;
+        
+        minimapCtx.fillStyle = enemy.isBoss ? enemy.color : 'red';
+        minimapCtx.fillRect(x - 2, y - 2, 4, 4);
+    });
+}
+
+// 타워 조합 체크 함수
+function checkTowerCombos() {
+    Object.entries(TOWER_COMBOS).forEach(([comboKey, combo]) => {
+        // 조합 조건을 만족하는지 확인
+        const hasCombo = combo.condition ? combo.condition(towers) : true;
+        
+        if (hasCombo) {
+            // 조합 효과 적용
+            combo.effect(towers);
+            
+            // 조합 이펙트 표시 (이미 표시되지 않은 경우에만)
+            if (!towers.some(tower => tower.activeCombos?.includes(comboKey))) {
+                towers.forEach(tower => {
+                    if (!tower.activeCombos) tower.activeCombos = [];
+                    tower.activeCombos.push(comboKey);
+                });
+                showComboEffect(combo.name);
+            }
+        } else {
+            // 조합이 해제된 경우
+            towers.forEach(tower => {
+                if (tower.activeCombos) {
+                    const index = tower.activeCombos.indexOf(comboKey);
+                    if (index > -1) {
+                        tower.activeCombos.splice(index, 1);
+                    }
+                }
+            });
+        }
+    });
+}
+
+// 조합 이펙트 표시 함수
+function showComboEffect(comboName) {
+    const effect = document.createElement('div');
+    effect.className = 'combo-effect';
+    effect.innerHTML = `
+        <h3>타워 조합 발견!</h3>
+        <p>${comboName}</p>
+    `;
+    document.body.appendChild(effect);
+    
+    setTimeout(() => {
+        effect.remove();
+    }, 3000);
+}
+
 // 게임 시작
 gameLoop(); 
+
+// 게임 통계 업데이트 함수
+function updateStats() {
+    // 통계 요소 업데이트
+    document.getElementById('enemiesKilled').textContent = gameStats.enemiesKilled;
+    document.getElementById('bossesKilled').textContent = gameStats.bossesKilled;
+    document.getElementById('totalGold').textContent = gameStats.totalGold;
+    document.getElementById('highestWave').textContent = gameStats.highestWave;
+    
+    // 업적 업데이트
+    Object.entries(ACHIEVEMENTS).forEach(([key, achievement]) => {
+        const achievementElement = document.getElementById(`achievement-${key}`);
+        if (achievementElement) {
+            achievementElement.className = achievement.unlocked ? 'achievement unlocked' : 'achievement';
+        }
+    });
+    
+    // 이벤트 트리거 업데이트
+    const eventsList = document.getElementById('eventsList');
+    if (eventsList) {
+        eventsList.innerHTML = gameStats.eventsTriggered
+            .map(event => `<li>${SPECIAL_EVENTS[event].name}</li>`)
+            .join('');
+    }
+}
+
+// CSS 스타일 추가
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        .combo-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: gold;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        .achievement {
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+
+        .achievement.unlocked {
+            opacity: 1;
+            color: gold;
+        }
+
+        #eventsList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #eventsList li {
+            padding: 5px 0;
+            border-bottom: 1px solid #ccc;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+`);

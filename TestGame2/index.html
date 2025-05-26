@@ -36,35 +36,50 @@
         }
         .tower-menu {
             position: fixed;
-            background-color: white;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
             padding: 10px;
-            border: 2px solid #333;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            z-index: 9999;
-            max-width: 200px;
-            transform: translate(-50%, -50%);
+            z-index: 1000;
+            max-height: 80vh;
+            overflow-y: auto;
         }
-        .tower-menu button {
-            display: block;
+        .tower-button {
             width: 100%;
-            padding: 8px;
             margin: 5px 0;
-            border: none;
-            background-color: #4CAF50;
+            padding: 10px;
+            background: #2c3e50;
+            border: 1px solid #4CAF50;
+            border-radius: 5px;
             color: white;
             cursor: pointer;
-            border-radius: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            transition: all 0.3s ease;
         }
-        .tower-menu button:hover {
-            background-color: #45a049;
+        .tower-button:hover:not(:disabled) {
+            background: #34495e;
+            transform: scale(1.02);
         }
-        .tower-menu button:disabled {
-            background-color: #cccccc;
+        .tower-button:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
+        }
+        .tower-description {
+            text-align: left;
+        }
+        .tower-description h3 {
+            margin: 0 0 5px 0;
+            color: #4CAF50;
+        }
+        .tower-description p {
+            margin: 2px 0;
+            font-size: 0.9em;
+            color: #bdc3c7;
+        }
+        .tower-range-preview {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
         }
         .game-controls {
             display: flex;
