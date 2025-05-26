@@ -702,11 +702,23 @@ let enemies = [];
 const TOWER_TYPES = {
     BASIC: {
         name: '기본 타워',
-        cost: 120,
-        damage: 8,
+        cost: 100,
+        damage: 10,
         range: 3,
-        cooldown: 35,
-        color: 'blue'
+        cooldown: 30,
+        color: 'blue',
+        special: {
+            name: '강화 사격',
+            description: '10초 동안 공격력이 50% 증가합니다.',
+            cooldown: 30,
+            duration: 10,
+            effect: (tower) => {
+                tower.damage *= 1.5;
+                setTimeout(() => {
+                    tower.damage /= 1.5;
+                }, 10000);
+            }
+        }
     },
     ICE: {
         name: '얼음 타워',
@@ -715,26 +727,72 @@ const TOWER_TYPES = {
         range: 3,
         cooldown: 40,
         color: 'lightblue',
-        freezeDuration: 2
+        freezeDuration: 2,
+        special: {
+            name: '빙결 폭발',
+            description: '범위 내 모든 적을 5초 동안 얼립니다.',
+            cooldown: 45,
+            effect: (tower) => {
+                enemies.forEach(enemy => {
+                    const dx = (enemy.x - tower.x) * TILE_SIZE;
+                    const dy = (enemy.y - tower.y) * TILE_SIZE;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance <= tower.range * TILE_SIZE) {
+                        enemy.speed = 0;
+                        setTimeout(() => {
+                            enemy.speed = enemy.baseSpeed;
+                        }, 5000);
+                    }
+                });
+            }
+        }
     },
     POISON: {
         name: '독 타워',
-        cost: 180,
-        damage: 4,
+        cost: 200,
+        damage: 3,
         range: 2,
-        cooldown: 25,
+        cooldown: 20,
         color: 'green',
-        poisonDamage: 3,
-        poisonDuration: 6
+        poisonDamage: 2,
+        poisonDuration: 5,
+        special: {
+            name: '독 구름',
+            description: '범위 내 적들에게 강력한 독 데미지를 줍니다.',
+            cooldown: 40,
+            effect: (tower) => {
+                enemies.forEach(enemy => {
+                    const dx = (enemy.x - tower.x) * TILE_SIZE;
+                    const dy = (enemy.y - tower.y) * TILE_SIZE;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance <= tower.range * TILE_SIZE) {
+                        enemy.poisonDamage = tower.poisonDamage * 3;
+                        enemy.poisonDuration = tower.poisonDuration * 2;
+                    }
+                });
+            }
+        }
     },
     LASER: {
         name: '레이저 타워',
-        cost: 300,
-        damage: 12,
+        cost: 250,
+        damage: 15,
         range: 4,
-        cooldown: 60,
+        cooldown: 50,
         color: 'red',
-        continuousDamage: 3
+        continuousDamage: 5,
+        special: {
+            name: '과열 레이저',
+            description: '10초 동안 연속 데미지가 3배로 증가합니다.',
+            cooldown: 60,
+            duration: 10,
+            effect: (tower) => {
+                tower.continuousDamage *= 3;
+                setTimeout(() => {
+                    tower.continuousDamage /= 3;
+                }, 10000);
+            }
+        }
     },
     SPLASH: {
         name: '스플래시 타워',
@@ -745,7 +803,20 @@ const TOWER_TYPES = {
         color: 'purple',
         splashRadius: 1.5,
         slowEffect: 0.3,
-        splashDamage: 5.6  // 기본 데미지의 70%
+        special: {
+            name: '대규모 폭발',
+            description: '범위가 2배로 증가하고 데미지가 50% 증가합니다.',
+            cooldown: 50,
+            duration: 8,
+            effect: (tower) => {
+                tower.splashRadius *= 2;
+                tower.damage *= 1.5;
+                setTimeout(() => {
+                    tower.splashRadius /= 2;
+                    tower.damage /= 1.5;
+                }, 8000);
+            }
+        }
     },
     SUPPORT: {
         name: '지원 타워',
@@ -756,7 +827,26 @@ const TOWER_TYPES = {
         color: 'yellow',
         buffRange: 3,
         buffMultiplier: 1.2,
-        buffDuration: 5
+        special: {
+            name: '전체 강화',
+            description: '모든 타워의 공격력이 30% 증가합니다.',
+            cooldown: 60,
+            duration: 15,
+            effect: (tower) => {
+                towers.forEach(t => {
+                    if (t !== tower) {
+                        t.damage *= 1.3;
+                    }
+                });
+                setTimeout(() => {
+                    towers.forEach(t => {
+                        if (t !== tower) {
+                            t.damage /= 1.3;
+                        }
+                    });
+                }, 15000);
+            }
+        }
     }
 };
 
@@ -990,8 +1080,8 @@ const TOWER_COMBOS = {
             const iceTower = towers.find(t => t.type === 'ICE');
             const poisonTower = towers.find(t => t.type === 'POISON');
             if (iceTower && poisonTower) {
-                poisonTower.poisonDamage *= 1.3;
-                iceTower.freezeDuration += 1;
+                poisonTower.poisonDamage *= 1.5;
+                iceTower.freezeDuration += 2;
             }
         }
     },
@@ -1001,13 +1091,13 @@ const TOWER_COMBOS = {
         effect: (towers) => {
             const supportTowers = towers.filter(t => t.type === 'SUPPORT');
             supportTowers.forEach(support => {
-                towers.forEach(tower => {
+            towers.forEach(tower => {
                     if (tower !== support) {
                         const dx = tower.x - support.x;
                         const dy = tower.y - support.y;
                         const distance = Math.sqrt(dx * dx + dy * dy);
                         if (distance <= support.buffRange) {
-                            tower.damage *= 1.15;
+                            tower.damage *= support.buffMultiplier;
                         }
                     }
                 });
@@ -1022,18 +1112,18 @@ const TOWER_COMBOS = {
                 towers.some(t => t.type === type)
             );
             if (hasAllTypes) {
-                towers.forEach(tower => {
+            towers.forEach(tower => {
                     switch(tower.type) {
                         case 'ICE':
                             tower.freezeDuration *= 2;
-                            break;
+                        break;
                         case 'POISON':
                             tower.poisonDamage *= 2;
                             tower.poisonDuration *= 2;
-                            break;
+                        break;
                         case 'LASER':
-                            tower.continuousDamage *= 2;
-                            break;
+                        tower.continuousDamage *= 2;
+                        break;
                         case 'SPLASH':
                             tower.splashRadius *= 1.5;
                             tower.slowEffect *= 1.5;
@@ -1064,7 +1154,8 @@ class Tower {
         this.experience = 0;
         this.experienceToNextLevel = 100;
         this.specialCooldown = 0;
-        this.isHovered = false;
+        this.specialActive = false;
+        this.special = TOWER_TYPES[type].special;
         
         // 업그레이드 레벨 초기화
         this.rangeLevel = 0;
@@ -1087,7 +1178,6 @@ class Tower {
         if (type === 'SPLASH') {
             this.splashRadius = towerType.splashRadius;
             this.slowEffect = towerType.slowEffect;
-            this.splashDamage = towerType.splashDamage;
         } else if (type === 'POISON') {
             this.poisonDamage = towerType.poisonDamage;
             this.poisonDuration = towerType.poisonDuration;
@@ -1098,8 +1188,7 @@ class Tower {
         } else if (type === 'SUPPORT') {
             this.buffRange = towerType.buffRange;
             this.buffMultiplier = towerType.buffMultiplier;
-            this.buffDuration = towerType.buffDuration;
-            this.buffedTowers = new Set();
+            this.buffedTowers = new Set(); // 버프된 타워 추적
         }
     }
 
@@ -1107,7 +1196,7 @@ class Tower {
     getUpgradeCost(upgradeType) {
         const baseCost = 100;
         const level = this[`${upgradeType}Level`];
-        return Math.floor(baseCost * Math.pow(1.3, level));
+        return Math.floor(baseCost * Math.pow(1.5, level));
     }
 
     // 업그레이드 가능 여부 확인
@@ -1128,19 +1217,16 @@ class Tower {
 
         switch(upgradeType) {
             case 'range':
-                this.range = this.baseRange * (1 + this.rangeLevel * 0.15);
+                this.range = this.baseRange * (1 + this.rangeLevel * 0.2);
                 break;
             case 'damage':
-                this.damage = this.baseDamage * (1 + this.damageLevel * 0.25);
-                if (this.type === 'SPLASH') {
-                    this.splashDamage = this.damage * 0.7;
-                }
+                this.damage = this.baseDamage * (1 + this.damageLevel * 0.3);
                 break;
             case 'speed':
-                this.maxCooldown = this.baseCooldown * (1 - this.speedLevel * 0.08);
+                this.maxCooldown = this.baseCooldown * (1 - this.speedLevel * 0.1);
                 break;
             case 'bullet':
-                this.bulletCount = 1 + Math.floor(this.bulletLevel / 2);
+                this.bulletCount = 1 + this.bulletLevel;
                 break;
         }
 
@@ -1189,6 +1275,7 @@ class Tower {
             this.special.effect(this);
             this.specialCooldown = this.special.cooldown;
             showSpecialEffect(this.x, this.y, this.special.name);
+            playSound('powerup');
         }
     }
 
@@ -1218,28 +1305,19 @@ class Tower {
             this.y * TILE_SIZE + TILE_SIZE/2 + 4
         );
 
-        // 공격 범위 표시 (마우스 오버 시)
-        if (this.isHovered) {
+        // 타워 범위 표시 (디버그 모드일 때만)
+        if (gameState.debugMode) {
             ctx.strokeStyle = this.color;
             ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.arc(
-                this.x * TILE_SIZE + TILE_SIZE/2,
-                this.y * TILE_SIZE + TILE_SIZE/2,
-                this.range * TILE_SIZE,
-                0,
-                Math.PI * 2
-            );
-            ctx.stroke();
-        }
-
-        // 특수 효과 표시
-        if (this.type === 'ICE') {
-            this.drawIceEffect();
-        } else if (this.type === 'POISON') {
-            this.drawPoisonEffect();
-        } else if (this.type === 'SPLASH') {
-            this.drawSplashEffect();
+        ctx.beginPath();
+        ctx.arc(
+            this.x * TILE_SIZE + TILE_SIZE/2,
+            this.y * TILE_SIZE + TILE_SIZE/2,
+            this.range * TILE_SIZE,
+            0,
+            Math.PI * 2
+        );
+        ctx.stroke();
         }
 
         // 쿨다운 표시
@@ -1253,45 +1331,18 @@ class Tower {
                 TILE_SIZE - 10
             );
         }
-    }
 
-    drawIceEffect() {
-        ctx.fillStyle = 'rgba(173, 216, 230, 0.3)';
-        ctx.beginPath();
-        ctx.arc(
-            this.x * TILE_SIZE + TILE_SIZE/2,
-            this.y * TILE_SIZE + TILE_SIZE/2,
-            this.range * TILE_SIZE,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
-    }
-
-    drawPoisonEffect() {
-        ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
-        ctx.beginPath();
-        ctx.arc(
-            this.x * TILE_SIZE + TILE_SIZE/2,
-            this.y * TILE_SIZE + TILE_SIZE/2,
-            this.range * TILE_SIZE,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
-    }
-
-    drawSplashEffect() {
-        ctx.fillStyle = 'rgba(128, 0, 128, 0.2)';
-        ctx.beginPath();
-        ctx.arc(
-            this.x * TILE_SIZE + TILE_SIZE/2,
-            this.y * TILE_SIZE + TILE_SIZE/2,
-            this.splashRadius * TILE_SIZE,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
+        // 특수 능력 쿨다운 표시
+        if (this.specialCooldown > 0) {
+            const cooldownPercentage = this.specialCooldown / this.special.cooldown;
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+            ctx.fillRect(
+                this.x * TILE_SIZE + 5,
+                this.y * TILE_SIZE + TILE_SIZE - 10,
+                (TILE_SIZE - 10) * cooldownPercentage,
+                5
+            );
+        }
     }
 
     attack(enemies) {
@@ -1309,44 +1360,47 @@ class Tower {
         });
 
         if (target) {
+            // 공격 효과음 재생
             playSound('tower_attack');
 
+            // 타워 종류별 공격 효과
             switch(this.type) {
                 case 'BASIC':
                     target.health -= this.damage;
                     showDamageNumber(target.x, target.y, this.damage);
-                    break;
+                        break;
 
                 case 'ICE':
                     target.health -= this.damage;
                     target.speed *= 0.5;
                     target.freezeDuration = this.freezeDuration;
                     showDamageNumber(target.x, target.y, this.damage);
-                    break;
+                        break;
 
                 case 'POISON':
                     target.health -= this.damage;
                     target.poisonDamage = this.poisonDamage;
                     target.poisonDuration = this.poisonDuration;
                     showDamageNumber(target.x, target.y, this.damage);
-                    break;
+                        break;
 
                 case 'LASER':
                     target.health -= this.damage;
                     target.continuousDamage = this.continuousDamage;
                     showDamageNumber(target.x, target.y, this.damage);
-                    break;
+                break;
 
                 case 'SPLASH':
+                    // 범위 내 모든 적에게 데미지
                     enemies.forEach(enemy => {
                         const dx = (enemy.x - this.x) * TILE_SIZE;
                         const dy = (enemy.y - this.y) * TILE_SIZE;
                         const distance = Math.sqrt(dx * dx + dy * dy);
                         
                         if (distance <= this.splashRadius * TILE_SIZE) {
-                            enemy.health -= this.splashDamage;
+                            enemy.health -= this.damage;
                             enemy.speed *= (1 - this.slowEffect);
-                            showDamageNumber(enemy.x, enemy.y, this.splashDamage);
+                            showDamageNumber(enemy.x, enemy.y, this.damage);
                         }
                     });
                     break;
@@ -1354,7 +1408,7 @@ class Tower {
                 case 'SUPPORT':
                     // 이전에 버프된 타워들의 데미지 복원
                     this.buffedTowers.forEach(tower => {
-                        tower.damage = tower.baseDamage * (1 + tower.damageLevel * 0.25);
+                        tower.damage = tower.baseDamage * (1 + tower.damageLevel * 0.3);
                     });
                     this.buffedTowers.clear();
 
@@ -1366,7 +1420,8 @@ class Tower {
                             const distance = Math.sqrt(dx * dx + dy * dy);
                             
                             if (distance <= this.buffRange * TILE_SIZE) {
-                                const baseDamage = tower.baseDamage * (1 + tower.damageLevel * 0.25);
+                                // 기본 데미지에 버프 적용
+                                const baseDamage = tower.baseDamage * (1 + tower.damageLevel * 0.3);
                                 tower.damage = baseDamage * this.buffMultiplier;
                                 this.buffedTowers.add(tower);
                             }
@@ -2261,7 +2316,7 @@ function showTowerBuildMenu(x, y, clientX, clientY) {
             <div class="tower-description">${getSpecialDescription(type)}</div>
         `;
 
-        if (gameState.gold >= tower.cost) {
+            if (gameState.gold >= tower.cost) {
             card.onmouseover = () => showTowerRangePreview(x, y, tower.range, type);
             card.onmouseout = hideTowerRangePreview;
             
@@ -2419,7 +2474,7 @@ function showTowerUpgradeMenu(tower, clientX, clientY) {
             towerMenu.parentNode.removeChild(towerMenu);
         }
     };
-    
+
     towerMenu.appendChild(sellSection);
     document.body.appendChild(towerMenu);
     setupMenuCloseHandler(towerMenu);
@@ -2643,7 +2698,10 @@ document.head.insertAdjacentHTML('beforeend', `
 function showSpecialEffect(x, y, name) {
     const effect = document.createElement('div');
     effect.className = 'special-effect';
-    effect.textContent = name;
+    effect.innerHTML = `
+        <div class="special-name">${name}</div>
+        <div class="special-animation"></div>
+    `;
     effect.style.left = `${x * TILE_SIZE}px`;
     effect.style.top = `${y * TILE_SIZE}px`;
     document.querySelector('.game-area').appendChild(effect);
