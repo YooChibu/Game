@@ -1306,9 +1306,42 @@ class Tower {
         );
         
         // 타워 범위 표시 (항상 표시)
+        const gradient = ctx.createRadialGradient(
+            this.x * TILE_SIZE + TILE_SIZE/2,
+            this.y * TILE_SIZE + TILE_SIZE/2,
+            0,
+            this.x * TILE_SIZE + TILE_SIZE/2,
+            this.y * TILE_SIZE + TILE_SIZE/2,
+            this.range * TILE_SIZE
+        );
+        
+        // 색상 값을 rgba 형식으로 변환
+        const color = this.color;
+        const rgbaColor = color === 'blue' ? 'rgba(0, 0, 255, 0.25)' :
+                         color === 'red' ? 'rgba(255, 0, 0, 0.25)' :
+                         color === 'green' ? 'rgba(0, 255, 0, 0.25)' :
+                         color === 'yellow' ? 'rgba(255, 255, 0, 0.25)' :
+                         color === 'purple' ? 'rgba(128, 0, 128, 0.25)' :
+                         'rgba(255, 255, 255, 0.25)';
+        
+        gradient.addColorStop(0, rgbaColor);
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(
+            this.x * TILE_SIZE + TILE_SIZE/2,
+            this.y * TILE_SIZE + TILE_SIZE/2,
+            this.range * TILE_SIZE,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+        
+        // 범위 테두리
         ctx.strokeStyle = this.color;
         ctx.lineWidth = 1;
-        ctx.globalAlpha = 0.3; // 반투명하게 설정
+        ctx.globalAlpha = 0.3;
         ctx.beginPath();
         ctx.arc(
             this.x * TILE_SIZE + TILE_SIZE/2,
@@ -1318,7 +1351,7 @@ class Tower {
             Math.PI * 2
         );
         ctx.stroke();
-        ctx.globalAlpha = 1.0; // 투명도 초기화
+        ctx.globalAlpha = 1.0;
 
         // 쿨다운 표시
         if (this.cooldown > 0) {
@@ -1770,13 +1803,32 @@ function updateWaveProgress() {
 
 // 보상 팝업 표시
 function showRewardPopup(amount) {
-    const popup = document.getElementById('rewardPopup');
-    document.getElementById('rewardAmount').textContent = amount;
-    popup.style.display = 'block';
+    // 기존 팝업이 있다면 제거
+    const existingPopup = document.getElementById('rewardPopup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+
+    // 새로운 팝업 생성
+    const popup = document.createElement('div');
+    popup.id = 'rewardPopup';
+    popup.className = 'reward-popup';
     
+    // 팝업 내용 설정
+    popup.innerHTML = `
+        <div class="reward-content">
+            <h3>웨이브 완료!</h3>
+            <p>보상: <span class="gold-amount">${amount}</span> 골드</p>
+        </div>
+    `;
+    
+    // 팝업을 body에 추가
+    document.body.appendChild(popup);
+    
+    // 3초 후 팝업 제거
     setTimeout(() => {
-        popup.style.display = 'none';
-    }, 2000);
+        popup.remove();
+    }, 3000);
 }
 
 // 골드 부족 메시지 표시
@@ -2515,6 +2567,13 @@ function showDamageNumber(x, y, damage) {
     
     const damageElement = document.createElement('div');
     damageElement.className = 'damage-number';
+    
+    // 크리티컬 데미지 체크 (기본 데미지의 1.5배 이상일 때)
+    const isCritical = damage >= 15;
+    if (isCritical) {
+        damageElement.classList.add('critical');
+    }
+    
     damageElement.textContent = Math.floor(damage);
     
     // 적의 현재 위치에 데미지 숫자를 표시
@@ -2542,7 +2601,7 @@ function showDamageNumber(x, y, damage) {
         setTimeout(() => {
             cancelAnimationFrame(animationFrame);
             damageElement.remove();
-        }, 1000);
+        }, isCritical ? 1200 : 1000);
     }
 }
 

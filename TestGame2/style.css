@@ -7,9 +7,10 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #1a1a1a;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
     color: #ffffff;
     line-height: 1.6;
+    min-height: 100vh;
 }
 
 /* 게임 컨테이너 */
@@ -27,9 +28,10 @@ body {
 .game-area {
     position: relative;
     background: #2a2a2a;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
     overflow: hidden;
+    border: 2px solid #4CAF50;
 }
 
 /* 정보 바 */
@@ -37,49 +39,69 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 15px;
-    padding: 15px;
-    background: #2a2a2a;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    background: rgba(42, 42, 42, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
 }
 
 .info-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px;
-    background: #333;
-    border-radius: 8px;
+    gap: 12px;
+    padding: 15px;
+    background: rgba(51, 51, 51, 0.8);
+    border-radius: 12px;
     color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.info-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
 }
 
 .info-icon {
-    font-size: 1.5em;
+    font-size: 1.8em;
     color: #4CAF50;
+    text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
 }
 
 /* 컨트롤 버튼 */
 .control-buttons {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     justify-content: center;
-    margin-top: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
 }
 
 .control-button {
-    padding: 12px 24px;
+    padding: 15px 30px;
     border: none;
-    border-radius: 8px;
-    background: #4CAF50;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #4CAF50, #45a049);
     color: white;
     font-weight: bold;
+    font-size: 1.1em;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .control-button:hover {
-    background: #45a049;
-    transform: translateY(-2px);
+    background: linear-gradient(145deg, #45a049, #4CAF50);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.control-button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
 }
 
 /* 미니맵 */
@@ -101,17 +123,20 @@ body {
 /* 웨이브 진행 바 */
 .wave-progress {
     width: 100%;
-    height: 20px;
-    background: #333;
-    border-radius: 10px;
+    height: 25px;
+    background: rgba(51, 51, 51, 0.8);
+    border-radius: 15px;
     overflow: hidden;
-    margin-top: 15px;
+    margin-top: 20px;
+    border: 2px solid rgba(76, 175, 80, 0.3);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
 
 .wave-progress .fill {
     height: 100%;
-    background: #4CAF50;
+    background: linear-gradient(90deg, #4CAF50, #45a049);
     transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
 }
 
 /* 모달 창 */
@@ -172,14 +197,20 @@ body {
 
     .info-bar {
         grid-template-columns: repeat(2, 1fr);
+        padding: 15px;
     }
 
     .control-buttons {
-        flex-wrap: wrap;
+        flex-direction: column;
     }
 
     .control-button {
-        flex: 1 1 calc(50% - 10px);
+        width: 100%;
+    }
+
+    .tower-menu {
+        width: 90%;
+        max-width: 320px;
     }
 
     .minimap-container {
@@ -196,6 +227,17 @@ body {
 }
 
 /* 애니메이션 */
+@keyframes menuAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -213,12 +255,14 @@ body {
     left: 50%;
     transform: translateX(-50%);
     padding: 15px 30px;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.95);
     color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
     z-index: 1000;
     animation: slideDown 0.3s ease;
+    border: 2px solid #4CAF50;
+    backdrop-filter: blur(5px);
 }
 
 /* 타워 메뉴 */
@@ -226,49 +270,59 @@ body {
     position: fixed;
     background: rgba(0, 0, 0, 0.95);
     border: 2px solid #4CAF50;
-    border-radius: 10px;
-    padding: 20px;
+    border-radius: 15px;
+    padding: 25px;
     color: white;
     z-index: 1000;
-    min-width: 300px;
-    box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+    min-width: 320px;
+    box-shadow: 0 0 30px rgba(76, 175, 80, 0.4);
+    backdrop-filter: blur(10px);
+    animation: menuAppear 0.3s ease;
 }
 
 .tower-menu-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #4CAF50;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(76, 175, 80, 0.3);
 }
 
 .tower-menu-title {
-    font-size: 1.2em;
+    font-size: 1.4em;
     color: #4CAF50;
     font-weight: bold;
+    text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
 }
 
 /* 업그레이드 버튼 */
 .upgrade-button {
     width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    background: #4CAF50;
+    padding: 12px;
+    margin-top: 15px;
+    background: linear-gradient(145deg, #4CAF50, #45a049);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
 }
 
 .upgrade-button:hover:not(:disabled) {
-    background: #45a049;
+    background: linear-gradient(145deg, #45a049, #4CAF50);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
 }
 
 .upgrade-button:disabled {
     background: #666;
     cursor: not-allowed;
+    box-shadow: none;
 }
 
 /* 게임 통계 */
@@ -318,20 +372,83 @@ body {
     position: absolute;
     color: #ff4444;
     font-weight: bold;
-    font-size: 16px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    font-size: 18px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     pointer-events: none;
     animation: damageFloat 1s ease-out forwards;
     z-index: 1000;
+    font-family: 'Arial', sans-serif;
+    transform-origin: center;
 }
 
 @keyframes damageFloat {
     0% {
         transform: translateY(0) scale(1);
         opacity: 1;
+        text-shadow: 0 0 10px rgba(255, 68, 68, 0.8);
+    }
+    50% {
+        transform: translateY(-15px) scale(1.2);
+        opacity: 0.8;
+        text-shadow: 0 0 15px rgba(255, 68, 68, 0.6);
     }
     100% {
-        transform: translateY(-30px) scale(1.2);
+        transform: translateY(-30px) scale(1);
         opacity: 0;
+        text-shadow: 0 0 20px rgba(255, 68, 68, 0);
     }
+}
+
+/* 크리티컬 데미지 스타일 */
+.damage-number.critical {
+    color: #ff0000;
+    font-size: 24px;
+    animation: criticalDamageFloat 1.2s ease-out forwards;
+}
+
+@keyframes criticalDamageFloat {
+    0% {
+        transform: translateY(0) scale(1.2);
+        opacity: 1;
+        text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+    }
+    50% {
+        transform: translateY(-20px) scale(1.5);
+        opacity: 0.9;
+        text-shadow: 0 0 20px rgba(255, 0, 0, 0.7);
+    }
+    100% {
+        transform: translateY(-40px) scale(1);
+        opacity: 0;
+        text-shadow: 0 0 25px rgba(255, 0, 0, 0);
+    }
+}
+
+/* 보상 팝업 스타일 */
+.reward-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #4CAF50;
+    color: white;
+    text-align: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+.reward-content h3 {
+    color: #4CAF50;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+}
+
+.gold-amount {
+    color: #FFD700;
+    font-weight: bold;
+    font-size: 1.2em;
 } 
