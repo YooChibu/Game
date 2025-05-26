@@ -41,7 +41,9 @@
             border: 2px solid #333;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            z-index: 1000;
+            z-index: 9999;
+            max-width: 200px;
+            transform: translate(-50%, -50%);
         }
         .tower-menu button {
             display: block;
@@ -53,6 +55,9 @@
             color: white;
             cursor: pointer;
             border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .tower-menu button:hover {
             background-color: #45a049;
@@ -437,13 +442,15 @@
         }
         .tower-limit {
             position: fixed;
-            top: 20px;
+            top: 70px;
             right: 20px;
             background: rgba(0, 0, 0, 0.8);
             color: white;
             padding: 10px;
             border-radius: 5px;
             z-index: 1000;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         .save-load-notification {
             position: fixed;
@@ -471,6 +478,31 @@
             pointer-events: none;
             transition: all 0.2s ease;
         }
+        .level-up-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: gold;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            animation: fadeInOut 3s ease-in-out;
+            z-index: 1000;
+        }
+
+        .level-up-effect h3 {
+            color: gold;
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+
+        .level-up-effect p {
+            margin: 5px 0;
+            font-size: 18px;
+        }
+
         .level-up-effect {
             position: fixed;
             top: 50%;
@@ -617,6 +649,264 @@
             80% { opacity: 1; transform: translateY(-10px); }
             100% { opacity: 0; transform: translateY(-20px); }
         }
+
+        .wave-start-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            animation: waveStartEffect 2s ease-in-out;
+            z-index: 1000;
+        }
+
+        .wave-start-effect h2 {
+            color: #4CAF50;
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+
+        .wave-start-effect p {
+            margin: 5px 0;
+            font-size: 18px;
+        }
+
+        @keyframes waveStartEffect {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+
+        .tower-upgrade-info {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .tower-upgrade-info .level {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .tower-upgrade-info .cost {
+            color: gold;
+        }
+
+        .tower-upgrade-info .max-level {
+            color: #ff4444;
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                padding-top: 120px;
+            }
+
+            .game-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .game-area {
+                width: 100%;
+                max-width: 100vw;
+                overflow: hidden;
+            }
+
+            canvas {
+                width: 100%;
+                height: auto;
+                max-width: 100vw;
+            }
+
+            .side-panel {
+                width: 100%;
+                max-width: 100vw;
+                padding: 10px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .game-controls {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .game-controls button {
+                font-size: 14px;
+                padding: 6px 12px;
+            }
+
+            .stats-panel {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .minimap {
+                width: 100px;
+                height: 100px;
+            }
+
+            .ability-bar {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .ability-button {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .info-bar {
+                flex-wrap: wrap;
+                gap: 10px;
+                padding: 5px;
+                font-size: 14px;
+            }
+
+            .info-bar span {
+                min-width: auto;
+                padding: 0 5px;
+            }
+
+            .tower-limit {
+                top: 120px;
+                right: 10px;
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            .tower-menu {
+                max-width: 90vw;
+                transform: translate(-50%, -50%);
+            }
+
+            .tower-menu button {
+                font-size: 14px;
+                padding: 6px;
+            }
+
+            .help-modal {
+                width: 90vw;
+                max-height: 90vh;
+                font-size: 14px;
+            }
+
+            .wave-progress {
+                width: 90%;
+                bottom: 10px;
+            }
+
+            .wave-progress .progress-bar {
+                width: 100%;
+            }
+
+            .save-load {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .sound-control {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* 태블릿 크기 */
+        @media screen and (min-width: 769px) and (max-width: 1024px) {
+            .game-container {
+                gap: 15px;
+            }
+
+            .side-panel {
+                width: 180px;
+            }
+
+            canvas {
+                width: 100%;
+                height: auto;
+            }
+
+            .info-bar {
+                font-size: 16px;
+            }
+
+            .tower-menu {
+                max-width: 250px;
+            }
+        }
+
+        /* 터치 이벤트 최적화 */
+        @media (hover: none) {
+            .tower-menu button:active,
+            .ability-button:active,
+            .game-controls button:active {
+                transform: scale(0.95);
+            }
+        }
+
+        .wave-start-button {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .wave-start-button:hover {
+            background: #45a049;
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .wave-start-button:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        .wave-start-button .shortcut-hint {
+            font-size: 12px;
+            opacity: 0.8;
+            color: rgba(255, 255, 255, 0.8);
+            white-space: nowrap;
+            display: block;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .wave-start-button .shortcut-hint {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -654,6 +944,11 @@
             </div>
             <div class="tooltip" id="tooltip"></div>
         </div>
+        
+        <button class="wave-start-button" id="waveStartButton">
+            다음 웨이브 시작
+            <div style="font-size: 12px; opacity: 0.8; color: rgba(255, 255, 255, 0.8); margin-top: 5px;">(스페이스바)</div>
+        </button>
         
         <div class="side-panel">
             <div class="game-controls">
@@ -703,8 +998,18 @@
         <span class="close-btn" id="closeHelp">&times;</span>
         <h2>게임 설명</h2>
         <ul>
-            <li>스페이스바: 다음 웨이브 시작</li>
-            <li>마우스 클릭: 타워 설치/업그레이드</li>
+            <li>게임 시작:
+                <ul>
+                    <li>게임 시작 버튼을 클릭하여 게임을 시작합니다.</li>
+                    <li>다음 웨이브 시작 버튼이나 스페이스바를 눌러 웨이브를 시작합니다.</li>
+                </ul>
+            </li>
+            <li>타워 설치:
+                <ul>
+                    <li>빈 공간을 클릭하여 타워를 설치할 수 있습니다.</li>
+                    <li>설치된 타워를 클릭하여 업그레이드하거나 판매할 수 있습니다.</li>
+                </ul>
+            </li>
             <li>타워 종류:
                 <ul>
                     <li>기본 타워 (50골드): 기본적인 공격력과 범위</li>
@@ -741,9 +1046,6 @@
                     <li>탱크 보스: 높은 체력과 방어 능력</li>
                     <li>스피드 보스: 빠른 이동과 순간 이동 능력</li>
                     <li>소환사 보스: 적 소환 능력</li>
-                    <li>탱크 보스: 지진 능력으로 주변 타워 무력화</li>
-                    <li>스피드 보스: 시간 왜곡으로 타워 공격 속도 감소</li>
-                    <li>소환사 보스: 타워 약화 능력 추가</li>
                 </ul>
             </li>
             <li>난이도:
@@ -764,8 +1066,6 @@
                     <li>이벤트 마스터: 모든 특수 이벤트 경험</li>
                 </ul>
             </li>
-            <li>타워 업그레이드: 설치된 타워를 클릭하여 업그레이드 가능</li>
-            <li>타워 판매: 업그레이드 메뉴에서 판매 가능 (설치 가격의 70% 환불)</li>
         </ul>
     </div>
 
@@ -773,7 +1073,7 @@
         업적 달성!
     </div>
 
-    <div class="tutorial" id="tutorial">
+    <div class="tutorial" id="tutorial" style="display: none;">
         <h2>게임 시작!</h2>
         <p>1. 빈 공간을 클릭하여 타워를 설치하세요</p>
         <p>2. 스페이스바를 눌러 웨이브를 시작하세요</p>

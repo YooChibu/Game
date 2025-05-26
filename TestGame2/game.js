@@ -32,7 +32,8 @@ const DIFFICULTY_SETTINGS = {
         enemyHealth: 0.8,
         enemySpeed: 0.8,
         goldReward: 1.2,
-        maxTowers: 12
+        maxTowers: 12,
+        enemySpawnRate: 0.03
     },
     NORMAL: {
         gold: 100,
@@ -40,7 +41,8 @@ const DIFFICULTY_SETTINGS = {
         enemyHealth: 1,
         enemySpeed: 1,
         goldReward: 1,
-        maxTowers: 10
+        maxTowers: 10,
+        enemySpawnRate: 0.05
     },
     HARD: {
         gold: 80,
@@ -48,7 +50,8 @@ const DIFFICULTY_SETTINGS = {
         enemyHealth: 1.3,
         enemySpeed: 1.2,
         goldReward: 0.8,
-        maxTowers: 8
+        maxTowers: 8,
+        enemySpawnRate: 0.07
     }
 };
 
@@ -370,6 +373,14 @@ const TOWER_COMBOS = {
                     tower.comboBonus = 1.5;
                 }
             });
+            // 3초 후에 효과 해제
+            setTimeout(() => {
+                towers.forEach(tower => {
+                    if (tower.type === 'BASIC' || tower.type === 'SNIPER') {
+                        tower.comboBonus = 1;
+                    }
+                });
+            }, 3000);
         }
     },
     SPLASH_LASER: {
@@ -387,6 +398,15 @@ const TOWER_COMBOS = {
                     if (tower.splashRadius) tower.splashRadius *= 1.5;
                 }
             });
+            // 3초 후에 효과 해제
+            setTimeout(() => {
+                towers.forEach(tower => {
+                    if (tower.type === 'SPLASH' || tower.type === 'LASER') {
+                        tower.comboBonus = 1;
+                        if (tower.splashRadius) tower.splashRadius /= 1.5;
+                    }
+                });
+            }, 3000);
         }
     },
     ALL_TOWERS: {
@@ -400,6 +420,12 @@ const TOWER_COMBOS = {
             towers.forEach(tower => {
                 tower.comboBonus = 1.3;
             });
+            // 3초 후에 효과 해제
+            setTimeout(() => {
+                towers.forEach(tower => {
+                    tower.comboBonus = 1;
+                });
+            }, 3000);
         }
     },
     ELEMENTAL_MASTERY: {
@@ -423,6 +449,22 @@ const TOWER_COMBOS = {
                         break;
                 }
             });
+            // 3초 후에 효과 해제
+            setTimeout(() => {
+                towers.forEach(tower => {
+                    switch(tower.special) {
+                        case 'pierce':
+                            tower.pierceCount = 1;
+                            break;
+                        case 'slow':
+                            tower.slowEffect = 0.7;
+                            break;
+                        case 'continuous':
+                            tower.continuousDamage /= 2;
+                            break;
+                    }
+                });
+            }, 3000);
         }
     },
     TACTICAL_FORMATION: {
@@ -443,6 +485,12 @@ const TOWER_COMBOS = {
                 );
                 tower.comboBonus = 1 + (adjacentTowers.length * 0.2);
             });
+            // 3초 후에 효과 해제
+            setTimeout(() => {
+                towers.forEach(tower => {
+                    tower.comboBonus = 1;
+                });
+            }, 3000);
         }
     }
 };
@@ -661,11 +709,20 @@ function showComboEffect(name, description) {
     const indicator = document.getElementById('comboIndicator');
     const descriptionElement = document.getElementById('comboDescription');
     
+    // 이전 타이머가 있다면 제거
+    if (window.comboTimer) {
+        clearTimeout(window.comboTimer);
+    }
+    
     descriptionElement.textContent = description;
     indicator.style.display = 'block';
     
-    setTimeout(() => {
-        indicator.style.display = 'none';
+    // 3초 후에 팝업을 숨기고 타이머 초기화
+    window.comboTimer = setTimeout(() => {
+        if (indicator) {
+            indicator.style.display = 'none';
+            window.comboTimer = null;
+        }
     }, 3000);
 }
 
@@ -683,6 +740,11 @@ document.querySelectorAll('.ability-button').forEach((button, index) => {
         }
     });
 });
+
+// 타워 업그레이드 비용 계산 함수
+function calculateUpgradeCost(baseCost, level) {
+    return Math.floor(baseCost * Math.pow(1.5, level - 1));
+}
 
 // 타워 클래스
 class Tower {
@@ -711,32 +773,38 @@ class Tower {
         this.pierceCount = 1;
         this.slowEffect = 0.7;
         this.specialCooldown = 0;
+        this.upgradeLevel = 1;
+        this.maxUpgradeLevel = 5;
+        this.upgradeCost = calculateUpgradeCost(TOWER_TYPES[type].upgradeCost, this.upgradeLevel);
         playSound(sounds.towerPlace);
     }
 
     upgrade() {
-        this.level++;
-        this.damage = Math.floor(this.damage * 1.5);
-        this.range += 0.5;
-        if (this.splashRadius) this.splashRadius += 0.5;
-        this.maxCooldown = Math.max(10, this.maxCooldown * 0.8);
-        
-        // 특수 능력 강화
-        if (this.special === 'continuous') {
-            this.continuousDamage = Math.floor(this.damage * 0.2);
+        if (this.upgradeLevel < this.maxUpgradeLevel) {
+            this.upgradeLevel++;
+            this.damage = Math.floor(this.damage * 1.5);
+            this.range += 0.5;
+            if (this.splashRadius) this.splashRadius += 0.5;
+            this.maxCooldown = Math.max(10, this.maxCooldown * 0.8);
+            this.upgradeCost = calculateUpgradeCost(TOWER_TYPES[this.type].upgradeCost, this.upgradeLevel);
+            
+            // 특수 능력 강화
+            if (this.special === 'continuous') {
+                this.continuousDamage = Math.floor(this.damage * 0.2);
+            }
+            
+            // 업그레이드 이펙트
+            showUpgradeEffect(this.x, this.y);
+            playSound(sounds.powerup);
         }
-        
-        // 업그레이드 이펙트
-        showUpgradeEffect(this.x, this.y);
-        playSound(sounds.powerup);
     }
 
     getUpgradeCost() {
-        return TOWER_TYPES[this.type].upgradeCost * this.level;
+        return this.upgradeCost;
     }
 
     getSellValue() {
-        return Math.floor(this.cost * 0.7);
+        return Math.floor(this.cost * 0.7 * this.upgradeLevel);
     }
 
     draw() {
@@ -1029,6 +1097,7 @@ function showCountdown() {
     isCountdownActive = true;
     const countdown = document.getElementById('countdown');
     countdown.style.display = 'block';
+    countdown.textContent = ''; // 카운트다운 시작 시 텍스트 초기화
     let count = 3;
     
     const interval = setInterval(() => {
@@ -1037,6 +1106,7 @@ function showCountdown() {
             count--;
         } else {
             countdown.style.display = 'none';
+            countdown.textContent = ''; // 카운트다운 종료 시 텍스트 초기화
             clearInterval(interval);
             isCountdownActive = false;
             startWave();
@@ -1065,7 +1135,7 @@ function restartGame() {
     towers = [];
     enemies = [];
     document.getElementById('gameOver').style.display = 'none';
-    showTutorial();
+    document.getElementById('tutorial').style.display = 'none';
 }
 
 // 타워 설치 가능한 위치 표시
@@ -1127,7 +1197,8 @@ document.getElementById('startBtn').addEventListener('click', () => {
     if (!gameState.isStarted) {
         gameState.isStarted = true;
         document.getElementById('startBtn').textContent = '재시작';
-        showTutorial();
+        document.getElementById('tutorial').style.display = 'none';
+        document.getElementById('waveStartButton').style.display = 'block'; // 게임 시작 시 버튼 표시
     } else {
         restartGame();
     }
@@ -1145,9 +1216,24 @@ function startWave() {
         enemies.push(new Enemy(gameState.wave, true));
     }
     
-    ctx.fillStyle = 'black';
-    ctx.font = '48px Arial';
-    ctx.fillText(`웨이브 ${gameState.wave} 시작!`, canvas.width/2 - 150, canvas.height/2);
+    // 웨이브 시작 이펙트
+    showWaveStartEffect();
+    playSound(sounds.powerup);
+}
+
+// 웨이브 시작 이펙트
+function showWaveStartEffect() {
+    const effect = document.createElement('div');
+    effect.className = 'wave-start-effect';
+    effect.innerHTML = `
+        <h2>웨이브 ${gameState.wave} 시작!</h2>
+        <p>적의 수: ${gameState.enemiesRemaining}</p>
+    `;
+    document.body.appendChild(effect);
+    
+    setTimeout(() => {
+        effect.remove();
+    }, 2000);
 }
 
 // 정보 바 업데이트
@@ -1280,7 +1366,8 @@ function gameLoop() {
     });
 
     // 새로운 적 생성
-    if (gameState.waveInProgress && gameState.enemiesRemaining > 0 && Math.random() < 0.05) {
+    if (gameState.waveInProgress && gameState.enemiesRemaining > 0 && 
+        Math.random() < DIFFICULTY_SETTINGS[gameState.difficulty].enemySpawnRate) {
         enemies.push(new Enemy(gameState.wave));
         gameState.enemiesRemaining--;
     }
@@ -1309,10 +1396,10 @@ function gameLoop() {
     // 웨이브 진행 상황 업데이트
     updateWaveProgress();
 
-    if (!gameState.waveInProgress) {
-        ctx.fillStyle = 'black';
-        ctx.font = '20px Arial';
-        ctx.fillText('스페이스바를 눌러 다음 웨이브 시작', canvas.width/2 - 150, canvas.height - 20);
+    // 웨이브 시작 버튼 표시/숨김 처리
+    const waveStartButton = document.getElementById('waveStartButton');
+    if (waveStartButton) {
+        waveStartButton.style.display = !gameState.waveInProgress && !gameState.isGameOver ? 'block' : 'none';
     }
 
     if (gameState.isPaused) {
@@ -1329,16 +1416,6 @@ function gameLoop() {
         showGameOver();
     }
 
-    // 특수 이벤트 체크 (웨이브가 진행 중이고 10% 확률로 발생)
-    if (gameState.waveInProgress && Math.random() < 0.001) {
-        const events = Object.keys(SPECIAL_EVENTS);
-        const randomEvent = events[Math.floor(Math.random() * events.length)];
-        SPECIAL_EVENTS[randomEvent].effect();
-        if (!gameStats.eventsTriggered.includes(randomEvent)) {
-            gameStats.eventsTriggered.push(randomEvent);
-        }
-    }
-
     requestAnimationFrame(gameLoop);
 }
 
@@ -1346,7 +1423,7 @@ function gameLoop() {
 document.addEventListener('keydown', (e) => {
     if (e.code === 'Space') {
         e.preventDefault();
-        if (!gameState.waveInProgress && !gameState.isGameOver && !isCountdownActive) {
+        if (!gameState.waveInProgress && !gameState.isGameOver && !isCountdownActive && gameState.isStarted) {
             showCountdown();
         }
     } else if (e.code === 'KeyP') {
@@ -1486,8 +1563,33 @@ function showTowerBuildMenu(x, y, clientX, clientY) {
 
     const towerMenu = document.createElement('div');
     towerMenu.className = 'tower-menu';
-    towerMenu.style.left = `${clientX}px`;
-    towerMenu.style.top = `${clientY}px`;
+    
+    // 화면 경계를 벗어나지 않도록 위치 조정
+    const menuWidth = 200; // 메뉴의 최대 너비
+    const menuHeight = Object.keys(TOWER_TYPES).length * 40; // 버튼 높이 * 버튼 개수
+    
+    let menuX = clientX;
+    let menuY = clientY;
+    
+    // 화면 오른쪽 경계 체크
+    if (menuX + menuWidth/2 > window.innerWidth) {
+        menuX = window.innerWidth - menuWidth/2;
+    }
+    // 화면 왼쪽 경계 체크
+    if (menuX - menuWidth/2 < 0) {
+        menuX = menuWidth/2;
+    }
+    // 화면 아래쪽 경계 체크
+    if (menuY + menuHeight/2 > window.innerHeight) {
+        menuY = window.innerHeight - menuHeight/2;
+    }
+    // 화면 위쪽 경계 체크
+    if (menuY - menuHeight/2 < 0) {
+        menuY = menuHeight/2;
+    }
+    
+    towerMenu.style.left = `${menuX}px`;
+    towerMenu.style.top = `${menuY}px`;
 
     const highlight = highlightGrid(x, y);
 
@@ -1569,6 +1671,14 @@ window.addEventListener('load', () => {
     setTimeout(() => {
         document.getElementById('loadingScreen').style.display = 'none';
         updateTowerLimit();
+        document.getElementById('waveStartButton').style.display = 'none'; // 초기에는 버튼 숨김
+        
+        // 다음웨이브 버튼 클릭 이벤트 추가
+        document.getElementById('waveStartButton').addEventListener('click', () => {
+            if (!gameState.waveInProgress && !gameState.isGameOver && !isCountdownActive && gameState.isStarted) {
+                showCountdown();
+            }
+        });
     }, 1500);
 });
 
@@ -1624,8 +1734,9 @@ function calculateWaveReward() {
     const waveBonus = gameState.wave * 10;
     const difficultyMultiplier = DIFFICULTY_SETTINGS[gameState.difficulty].goldReward;
     const towerBonus = towers.length * 5;
+    const levelBonus = gameState.level * 2;
     
-    return Math.floor((baseReward + waveBonus + towerBonus) * difficultyMultiplier);
+    return Math.floor((baseReward + waveBonus + towerBonus + levelBonus) * difficultyMultiplier);
 }
 
 // 게임 저장
