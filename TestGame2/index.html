@@ -108,7 +108,344 @@
             background-color: rgba(255, 255, 255, 0.9);
             border: 1px solid #ccc;
             border-radius: 5px;
+            margin: 10px auto;
         }
+
+        .minimap canvas {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .map-select-container {
+            position: relative;
+            margin: 10px 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .map-preview {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .map-preview.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .map-preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .map-preview-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .map-preview-title h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .map-difficulty-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .difficulty-easy {
+            background: #e8f5e9;
+            color: #4CAF50;
+        }
+
+        .difficulty-medium {
+            background: #fff3e0;
+            color: #FFC107;
+        }
+
+        .difficulty-hard {
+            background: #ffebee;
+            color: #F44336;
+        }
+
+        .map-details-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .map-details-button:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+
+        .map-details-button:active {
+            transform: translateY(0);
+        }
+
+        .map-details-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .map-details-modal.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .map-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .map-details-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .map-details-title h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        .map-details-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .map-details-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .map-details-main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .map-details-sidebar {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .map-details-description {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+
+        .map-details-features {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .map-details-features h4 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        .map-details-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .map-details-features li {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .map-details-features li:before {
+            content: "✓";
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .map-details-strategy {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .map-details-strategy h4 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        .map-details-strategy p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .map-details-recommendations {
+            margin-top: 20px;
+        }
+
+        .map-details-recommendations h4 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        .recommended-towers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tower-badge {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tower-badge i {
+            font-size: 16px;
+        }
+
+        .map-details-difficulty {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .map-details-difficulty h4 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        .difficulty-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .difficulty-bar {
+            flex: 1;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .difficulty-fill {
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .difficulty-easy .difficulty-fill {
+            width: 33%;
+            background: #4CAF50;
+        }
+
+        .difficulty-medium .difficulty-fill {
+            width: 66%;
+            background: #FFC107;
+        }
+
+        .difficulty-hard .difficulty-fill {
+            width: 100%;
+            background: #F44336;
+        }
+
+        .map-details-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .map-details-overlay.active {
+            display: block;
+        }
+
+        @media screen and (max-width: 768px) {
+            .map-details-content {
+                grid-template-columns: 1fr;
+            }
+
+            .map-details-modal {
+                width: 95%;
+                margin: 10px;
+            }
+        }
+
         .ability-bar {
             display: flex;
             gap: 10px;
@@ -907,6 +1244,329 @@
                 display: none;
             }
         }
+
+        .map-select-container {
+            position: relative;
+            margin: 10px 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .map-select-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .map-select-header h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .map-select-header .map-count {
+            margin-left: auto;
+            background: #e8f5e9;
+            color: #4CAF50;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .map-select-container select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #4CAF50;
+            border-radius: 6px;
+            background-color: white;
+            font-size: 16px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234CAF50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .map-select-container select:hover {
+            border-color: #45a049;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.2);
+        }
+
+        .map-select-container select:focus {
+            outline: none;
+            border-color: #45a049;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .map-select-container select optgroup {
+            font-weight: bold;
+            color: #4CAF50;
+            background-color: #f5f5f5;
+            padding: 8px;
+        }
+
+        .map-select-container select option {
+            padding: 10px;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+
+        .map-select-container select option:hover {
+            background-color: #e8f5e9;
+        }
+
+        .map-preview {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .map-preview.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .map-preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .map-preview-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .map-preview-title h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .map-difficulty-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .difficulty-easy {
+            background: #e8f5e9;
+            color: #4CAF50;
+        }
+
+        .difficulty-medium {
+            background: #fff3e0;
+            color: #FFC107;
+        }
+
+        .difficulty-hard {
+            background: #ffebee;
+            color: #F44336;
+        }
+
+        .map-details-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .map-details-button:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+
+        .map-details-button:active {
+            transform: translateY(0);
+        }
+
+        .map-preview-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .map-preview-main {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .map-preview-sidebar {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .map-features {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .map-features h5 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .map-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .map-features li {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .map-features li:before {
+            content: "✓";
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .map-strategy {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .map-strategy h5 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .map-strategy p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .map-recommendations {
+            margin-top: 15px;
+        }
+
+        .map-recommendations h5 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .recommended-towers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tower-badge {
+            background: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tower-badge i {
+            font-size: 14px;
+        }
+
+        .map-difficulty {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .difficulty-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .difficulty-bar {
+            flex: 1;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .difficulty-fill {
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .difficulty-easy .difficulty-fill {
+            width: 33%;
+            background: #4CAF50;
+        }
+
+        .difficulty-medium .difficulty-fill {
+            width: 66%;
+            background: #FFC107;
+        }
+
+        .difficulty-hard .difficulty-fill {
+            width: 100%;
+            background: #F44336;
+        }
+
+        @media screen and (max-width: 768px) {
+            .map-preview-content {
+                grid-template-columns: 1fr;
+            }
+
+            .map-preview-stats {
+                flex-wrap: wrap;
+            }
+        }
     </style>
 </head>
 <body>
@@ -960,28 +1620,53 @@
                     <option value="NORMAL" selected>보통</option>
                     <option value="HARD">어려움</option>
                 </select>
-                <select id="mapSelect">
-                    <option value="STRAIGHT">기본 직선</option>
-                    <option value="ZIGZAG">지그재그</option>
-                    <option value="SPIRAL">나선형</option>
-                    <option value="MAZE">기본 미로</option>
-                    <option value="CROSS">십자형</option>
-                    <option value="SNAKE">뱀형</option>
-                    <option value="DIAMOND">다이아몬드</option>
-                    <option value="LABYRINTH">복잡 미로</option>
-                    <option value="DOUBLE_SPIRAL">이중 나선</option>
-                    <option value="PYRAMID">피라미드</option>
-                    <option value="WAVE">파도형</option>
-                    <option value="STAIRS">계단형</option>
-                    <option value="CROSSROADS">교차로</option>
-                    <option value="INFINITY">무한대</option>
-                    <option value="BUTTERFLY">나비형</option>
-                    <option value="HOURGLASS">모래시계</option>
-                    <option value="TRIANGLE">삼각형</option>
-                    <option value="VORTEX">소용돌이</option>
-                    <option value="MAZE2">맵1</option>
-                    <option value="SNAKE2">맵2</option>
-                </select>
+                <div class="map-select-container">
+                    <div class="map-select-header">
+                        <h3>맵 선택</h3>
+                        <span class="map-count">총 13개 맵</span>
+                    </div>
+                    <select id="mapSelect">
+                        <optgroup label="초급 맵">
+                            <option value="STRAIGHT">기본 직선 [쉬움]</option>
+                            <option value="ZIGZAG">지그재그 [쉬움]</option>
+                            <option value="SNAKE">뱀형 [쉬움]</option>
+                            <option value="DIAMOND">다이아몬드 [쉬움]</option>
+                        </optgroup>
+                        <optgroup label="중급 맵">
+                            <option value="SPIRAL">나선형 [보통]</option>
+                            <option value="MAZE">기본 미로 [보통]</option>
+                            <option value="CROSS">십자형 [보통]</option>
+                            <option value="TRIANGLE">맵1 (삼각형) [보통]</option>
+                            <option value="WAVE">맵2 (파도형) [보통]</option>
+                            <option value="STAIRS">맵3 (계단형) [보통]</option>
+                        </optgroup>
+                        <optgroup label="고급 맵">
+                            <option value="LABYRINTH">맵4 (미로) [어려움]</option>
+                            <option value="DOUBLE_SPIRAL">맵5 (이중 나선) [어려움]</option>
+                            <option value="PYRAMID">맵6 (피라미드) [어려움]</option>
+                            <option value="CROSSROADS">맵7 (교차로) [어려움]</option>
+                            <option value="INFINITY">맵8 (무한형) [어려움]</option>
+                            <option value="BUTTERFLY">맵9 (나비형) [어려움]</option>
+                            <option value="HOURGLASS">맵10 (모래시계) [어려움]</option>
+                            <option value="VORTEX">맵11 (소용돌이) [어려움]</option>
+                            <option value="MAZE2">맵12 (미로2) [어려움]</option>
+                            <option value="SNAKE2">맵13 (뱀형2) [어려움]</option>
+                        </optgroup>
+                    </select>
+                    <div class="map-preview" id="mapPreview">
+                        <div class="map-preview-header">
+                            <div class="map-preview-title">
+                                <h4 id="mapPreviewTitle">맵 미리보기</h4>
+                                <span class="map-difficulty-badge" id="mapDifficultyBadge"></span>
+                            </div>
+                        </div>
+                        <button class="map-details-button" id="mapDetailsButton">맵 상세 정보 보기</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="minimap">
+                <canvas id="minimapCanvas" width="150" height="150"></canvas>
             </div>
             
             <div class="stats-panel">
@@ -992,10 +1677,6 @@
                     <p>총 획득 골드: <span id="totalGold">0</span></p>
                     <p>최고 웨이브: <span id="highestWave">0</span></p>
                 </div>
-            </div>
-            
-            <div class="minimap">
-                <canvas id="minimapCanvas" width="150" height="150"></canvas>
             </div>
             
             <div class="ability-bar">
@@ -1149,6 +1830,374 @@
         <source src="sounds/powerup.mp3" type="audio/mpeg">
     </audio>
 
+    <div class="map-details-overlay" id="mapDetailsOverlay"></div>
+    <div class="map-details-modal" id="mapDetailsModal">
+        <div class="map-details-header">
+            <div class="map-details-title">
+                <h3 id="mapDetailsTitle">맵 상세 정보</h3>
+                <span class="map-difficulty-badge" id="mapDetailsDifficultyBadge"></span>
+            </div>
+            <button class="map-details-close" id="mapDetailsClose">&times;</button>
+        </div>
+        <div class="map-details-content">
+            <div class="map-details-main">
+                <p class="map-details-description" id="mapDetailsDescription"></p>
+                <div class="map-details-features">
+                    <h4>맵 특징</h4>
+                    <ul id="mapDetailsFeaturesList"></ul>
+                </div>
+                <div class="map-details-strategy">
+                    <h4>추천 전략</h4>
+                    <p id="mapDetailsStrategy"></p>
+                </div>
+            </div>
+            <div class="map-details-sidebar">
+                <div class="map-details-recommendations">
+                    <h4>추천 타워</h4>
+                    <div class="recommended-towers" id="mapDetailsTowersList"></div>
+                </div>
+                <div class="map-details-difficulty">
+                    <h4>난이도</h4>
+                    <div class="difficulty-indicator" id="mapDetailsDifficultyIndicator">
+                        <div class="difficulty-bar">
+                            <div class="difficulty-fill"></div>
+                        </div>
+                        <span id="mapDetailsDifficulty"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="game.js"></script>
+    <script>
+        // 맵 정보 데이터
+        const mapInfo = {
+            STRAIGHT: {
+                name: "기본 직선",
+                difficulty: "쉬움",
+                description: "가장 기본적인 직선 경로로, 초보자에게 적합한 맵입니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 150개",
+                    "적 이동 경로: 단일 직선"
+                ],
+                strategy: "직선 경로이므로 범위 공격 타워를 중앙에 배치하면 효과적입니다.",
+                recommendedTowers: "스플래시 타워, 레이저 타워"
+            },
+            ZIGZAG: {
+                name: "지그재그",
+                difficulty: "쉬움",
+                description: "좌우로 움직이는 지그재그 경로로, 적의 이동을 예측하기 쉽습니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 140개",
+                    "적 이동 경로: 지그재그 패턴"
+                ],
+                strategy: "코너 부분에 타워를 배치하여 적의 이동을 방해하세요.",
+                recommendedTowers: "스나이퍼 타워, 기본 타워"
+            },
+            SNAKE: {
+                name: "뱀형",
+                difficulty: "쉬움",
+                description: "뱀이 기어가는 듯한 경로로, 적이 오래 노출됩니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 145개",
+                    "적 이동 경로: 뱀형 패턴"
+                ],
+                strategy: "경로의 중간 부분에 타워를 배치하여 적을 오래 공격하세요.",
+                recommendedTowers: "레이저 타워, 스플래시 타워"
+            },
+            DIAMOND: {
+                name: "다이아몬드",
+                difficulty: "쉬움",
+                description: "다이아몬드 형태의 경로로, 중앙 집중 전략이 효과적입니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 155개",
+                    "적 이동 경로: 다이아몬드 패턴"
+                ],
+                strategy: "중앙에 범위 공격 타워를 배치하고, 모서리에 단일 공격 타워를 배치하세요.",
+                recommendedTowers: "스플래시 타워, 스나이퍼 타워"
+            },
+            SPIRAL: {
+                name: "나선형",
+                difficulty: "보통",
+                description: "나선형 경로로, 적이 중앙으로 모였다가 퍼지는 패턴을 보입니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 160개",
+                    "적 이동 경로: 나선형 패턴"
+                ],
+                strategy: "중앙과 바깥쪽에 타워를 균형있게 배치하세요.",
+                recommendedTowers: "모든 타워 조합"
+            },
+            MAZE: {
+                name: "기본 미로",
+                difficulty: "보통",
+                description: "미로 형태의 경로로, 적의 이동을 예측하기 어렵습니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 130개",
+                    "적 이동 경로: 미로 패턴"
+                ],
+                strategy: "분기점에 타워를 배치하여 모든 경로를 커버하세요.",
+                recommendedTowers: "스플래시 타워, 레이저 타워"
+            },
+            CROSS: {
+                name: "십자형",
+                difficulty: "보통",
+                description: "십자 형태의 경로로, 여러 방향에서 적이 접근합니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 145개",
+                    "적 이동 경로: 십자형 패턴"
+                ],
+                strategy: "중앙에 범위 공격 타워를 배치하고, 각 방향에 단일 공격 타워를 배치하세요.",
+                recommendedTowers: "스플래시 타워, 스나이퍼 타워"
+            },
+            TRIANGLE: {
+                name: "맵1 (삼각형)",
+                difficulty: "보통",
+                description: "삼각형 형태의 경로로, 적이 순환하는 패턴을 보입니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 150개",
+                    "적 이동 경로: 삼각형 패턴"
+                ],
+                strategy: "각 꼭지점에 타워를 배치하여 순환하는 적을 공격하세요.",
+                recommendedTowers: "레이저 타워, 스나이퍼 타워"
+            },
+            WAVE: {
+                name: "맵2 (파도형)",
+                difficulty: "보통",
+                description: "파도 형태의 경로로, 적이 좌우로 움직입니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 140개",
+                    "적 이동 경로: 파도형 패턴"
+                ],
+                strategy: "파도의 곡선 부분에 타워를 배치하여 적의 이동을 방해하세요.",
+                recommendedTowers: "스플래시 타워, 기본 타워"
+            },
+            STAIRS: {
+                name: "맵3 (계단형)",
+                difficulty: "보통",
+                description: "계단 형태의 경로로, 적이 단계적으로 이동합니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 145개",
+                    "적 이동 경로: 계단형 패턴"
+                ],
+                strategy: "각 계단의 모서리에 타워를 배치하여 적의 이동을 방해하세요.",
+                recommendedTowers: "스나이퍼 타워, 레이저 타워"
+            },
+            LABYRINTH: {
+                name: "맵4 (미로)",
+                difficulty: "어려움",
+                description: "복잡한 미로 형태의 경로로, 전략적 배치가 중요합니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 120개",
+                    "적 이동 경로: 복잡한 미로 패턴"
+                ],
+                strategy: "분기점과 곡선 부분에 타워를 집중 배치하세요.",
+                recommendedTowers: "모든 타워 조합"
+            },
+            DOUBLE_SPIRAL: {
+                name: "맵5 (이중 나선)",
+                difficulty: "어려움",
+                description: "두 개의 나선이 겹친 형태로, 매우 복잡한 경로를 제공합니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 135개",
+                    "적 이동 경로: 이중 나선 패턴"
+                ],
+                strategy: "두 나선의 교차점에 타워를 배치하여 모든 경로를 커버하세요.",
+                recommendedTowers: "스플래시 타워, 레이저 타워"
+            },
+            PYRAMID: {
+                name: "맵6 (피라미드)",
+                difficulty: "어려움",
+                description: "피라미드 형태의 경로로, 적이 좁아지는 경로를 따라 이동합니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 125개",
+                    "적 이동 경로: 피라미드 패턴"
+                ],
+                strategy: "좁아지는 부분에 강력한 타워를 배치하여 적을 저지하세요.",
+                recommendedTowers: "스나이퍼 타워, 레이저 타워"
+            },
+            CROSSROADS: {
+                name: "맵7 (교차로)",
+                difficulty: "어려움",
+                description: "여러 경로가 교차하는 복잡한 맵으로, 전략적 배치가 중요합니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 130개",
+                    "적 이동 경로: 다중 교차 패턴"
+                ],
+                strategy: "교차점에 범위 공격 타워를 배치하고, 각 경로에 단일 공격 타워를 배치하세요.",
+                recommendedTowers: "스플래시 타워, 레이저 타워"
+            },
+            INFINITY: {
+                name: "맵8 (무한형)",
+                difficulty: "어려움",
+                description: "무한 기호(∞) 형태의 경로로, 적이 순환하는 패턴을 보입니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 140개",
+                    "적 이동 경로: 무한형 패턴"
+                ],
+                strategy: "순환 경로의 중앙과 교차점에 타워를 배치하여 적을 공격하세요.",
+                recommendedTowers: "스플래시 타워, 스나이퍼 타워"
+            },
+            BUTTERFLY: {
+                name: "맵9 (나비형)",
+                difficulty: "어려움",
+                description: "나비 날개 형태의 경로로, 적이 넓은 범위를 이동합니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 135개",
+                    "적 이동 경로: 나비형 패턴"
+                ],
+                strategy: "날개 부분의 중앙과 끝에 타워를 배치하여 넓은 범위를 커버하세요.",
+                recommendedTowers: "레이저 타워, 스플래시 타워"
+            },
+            HOURGLASS: {
+                name: "맵10 (모래시계)",
+                difficulty: "어려움",
+                description: "모래시계 형태의 경로로, 적이 좁아졌다가 넓어지는 패턴을 보입니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 125개",
+                    "적 이동 경로: 모래시계 패턴"
+                ],
+                strategy: "좁아지는 부분에 강력한 타워를 배치하고, 넓은 부분에 범위 공격 타워를 배치하세요.",
+                recommendedTowers: "스나이퍼 타워, 스플래시 타워"
+            },
+            VORTEX: {
+                name: "맵11 (소용돌이)",
+                difficulty: "어려움",
+                description: "소용돌이 형태의 경로로, 적이 중앙으로 모였다가 퍼지는 패턴을 보입니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 130개",
+                    "적 이동 경로: 소용돌이 패턴"
+                ],
+                strategy: "중앙과 바깥쪽에 타워를 균형있게 배치하여 모든 방향을 커버하세요.",
+                recommendedTowers: "모든 타워 조합"
+            },
+            MAZE2: {
+                name: "맵12 (미로2)",
+                difficulty: "어려움",
+                description: "더욱 복잡한 미로 형태의 경로로, 전략적 배치가 매우 중요합니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 115개",
+                    "적 이동 경로: 복잡한 미로 패턴"
+                ],
+                strategy: "분기점과 곡선 부분에 타워를 집중 배치하고, 모든 경로를 커버하세요.",
+                recommendedTowers: "모든 타워 조합"
+            },
+            SNAKE2: {
+                name: "맵13 (뱀형2)",
+                difficulty: "어려움",
+                description: "더욱 복잡한 뱀형 경로로, 적이 오래 노출되는 구간이 많습니다.",
+                features: [
+                    "맵 크기: 20x15",
+                    "타워 설치 가능 위치: 120개",
+                    "적 이동 경로: 복잡한 뱀형 패턴"
+                ],
+                strategy: "곡선 부분과 직선 부분에 적절히 타워를 배치하여 지속적인 공격을 하세요.",
+                recommendedTowers: "레이저 타워, 스플래시 타워"
+            }
+        };
+
+        // 맵 선택 이벤트 처리
+        document.getElementById('mapSelect').addEventListener('change', function(e) {
+            const selectedMap = e.target.value;
+            const mapData = mapInfo[selectedMap];
+            
+            if (mapData) {
+                // 미리보기 제목 업데이트
+                document.getElementById('mapPreviewTitle').textContent = mapData.name;
+                
+                // 난이도 배지 업데이트
+                const difficultyBadge = document.getElementById('mapDifficultyBadge');
+                difficultyBadge.textContent = mapData.difficulty;
+                difficultyBadge.className = 'map-difficulty-badge difficulty-' + 
+                    (mapData.difficulty === '쉬움' ? 'easy' : 
+                     mapData.difficulty === '보통' ? 'medium' : 'hard');
+                
+                // 미리보기 표시
+                document.getElementById('mapPreview').classList.add('active');
+            }
+        });
+
+        // 맵 상세 정보 모달 관련 이벤트 처리
+        const mapDetailsButton = document.getElementById('mapDetailsButton');
+        const mapDetailsModal = document.getElementById('mapDetailsModal');
+        const mapDetailsOverlay = document.getElementById('mapDetailsOverlay');
+        const mapDetailsClose = document.getElementById('mapDetailsClose');
+
+        mapDetailsButton.addEventListener('click', function() {
+            const selectedMap = document.getElementById('mapSelect').value;
+            const mapData = mapInfo[selectedMap];
+            
+            if (mapData) {
+                // 모달 내용 업데이트
+                document.getElementById('mapDetailsTitle').textContent = mapData.name;
+                document.getElementById('mapDetailsDescription').textContent = mapData.description;
+                
+                // 특징 목록 업데이트
+                const featuresList = document.getElementById('mapDetailsFeaturesList');
+                featuresList.innerHTML = mapData.features.map(feature => 
+                    `<li>${feature}</li>`
+                ).join('');
+                
+                // 전략 업데이트
+                document.getElementById('mapDetailsStrategy').textContent = mapData.strategy;
+                
+                // 추천 타워 업데이트
+                const recommendedTowers = document.getElementById('mapDetailsTowersList');
+                recommendedTowers.innerHTML = mapData.recommendedTowers.split(', ').map(tower => 
+                    `<div class="tower-badge"><i class="fas fa-tower-observation"></i>${tower}</div>`
+                ).join('');
+                
+                // 난이도 업데이트
+                const difficultyIndicator = document.getElementById('mapDetailsDifficultyIndicator');
+                difficultyIndicator.className = 'difficulty-indicator difficulty-' + 
+                    (mapData.difficulty === '쉬움' ? 'easy' : 
+                     mapData.difficulty === '보통' ? 'medium' : 'hard');
+                document.getElementById('mapDetailsDifficulty').textContent = mapData.difficulty;
+                
+                // 난이도 배지 업데이트
+                const difficultyBadge = document.getElementById('mapDetailsDifficultyBadge');
+                difficultyBadge.textContent = mapData.difficulty;
+                difficultyBadge.className = 'map-difficulty-badge difficulty-' + 
+                    (mapData.difficulty === '쉬움' ? 'easy' : 
+                     mapData.difficulty === '보통' ? 'medium' : 'hard');
+                
+                // 모달 표시
+                mapDetailsModal.classList.add('active');
+                mapDetailsOverlay.classList.add('active');
+            }
+        });
+
+        mapDetailsClose.addEventListener('click', function() {
+            mapDetailsModal.classList.remove('active');
+            mapDetailsOverlay.classList.remove('active');
+        });
+
+        mapDetailsOverlay.addEventListener('click', function() {
+            mapDetailsModal.classList.remove('active');
+            mapDetailsOverlay.classList.remove('active');
+        });
+
+        // 초기 맵 선택 시 미리보기 표시
+        document.getElementById('mapSelect').dispatchEvent(new Event('change'));
+    </script>
 </body>
 </html> 

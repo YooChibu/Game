@@ -257,7 +257,7 @@ const MAPS = {
         ]
     },
     LABYRINTH: {
-        name: '미궁',
+        name: '맵3',
         path: [
             {x: 0, y: 7},
             {x: 1, y: 7},
@@ -288,7 +288,7 @@ const MAPS = {
         ]
     },
     DOUBLE_SPIRAL: {
-        name: '이중 나선',
+        name: '맵4',
         path: [
             {x: 0, y: 7},
             {x: 1, y: 7},
@@ -333,7 +333,7 @@ const MAPS = {
         ]
     },
     PYRAMID: {
-        name: '피라미드',
+        name: '맵5',
         path: [
             {x: 0, y: 7},
             {x: 2, y: 7},
@@ -361,7 +361,7 @@ const MAPS = {
         ]
     },
     WAVE: {
-        name: '파도형',
+        name: '맵6',
         path: [
             {x: 0, y: 5},
             {x: 1, y: 5},
@@ -390,7 +390,7 @@ const MAPS = {
         ]
     },
     STAIRS: {
-        name: '계단형',
+        name: '맵7',
         path: [
             {x: 0, y: 1},
             {x: 2, y: 1},
@@ -415,7 +415,7 @@ const MAPS = {
         ]
     },
     CROSSROADS: {
-        name: '교차로',
+        name: '맵8',
         path: [
             {x: 0, y: 7},
             {x: 2, y: 7},
@@ -449,7 +449,7 @@ const MAPS = {
         ]
     },
     INFINITY: {
-        name: '무한형',
+        name: '맵9',
         path: [
             {x: 0, y: 7},
             {x: 2, y: 7},
@@ -487,7 +487,7 @@ const MAPS = {
         ]
     },
     BUTTERFLY: {
-        name: '나비형',
+        name: '맵10',
         path: [
             {x: 0, y: 7},
             {x: 2, y: 7},
@@ -525,7 +525,7 @@ const MAPS = {
         ]
     },
     HOURGLASS: {
-        name: '모래시계',
+        name: '맵11',
         path: [
             {x: 0, y: 3},
             {x: 2, y: 3},
@@ -621,7 +621,7 @@ const MAPS = {
         ]
     },
     MAZE2: {
-        name: '맵1',
+        name: '맵14',
         path: [
             {x: 0, y: 7},
             {x: 1, y: 7},
@@ -648,7 +648,7 @@ const MAPS = {
         ]
     },
     SNAKE2: {
-        name: '맵2',
+        name: '맵15',
         path: [
             {x: 0, y: 3},
             {x: 2, y: 3},
@@ -672,7 +672,7 @@ const MAPS = {
         ]
     },
     TRIANGLE: {
-        name: '삼각형',
+        name: '맵12',
         path: [
             {x: 0, y: 7},   // 시작점
             {x: 4, y: 7},   // 오른쪽으로
