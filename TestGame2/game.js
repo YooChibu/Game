@@ -1305,10 +1305,10 @@ class Tower {
             this.y * TILE_SIZE + TILE_SIZE/2 + 4
         );
 
-        // 타워 범위 표시 (디버그 모드일 때만)
-        if (gameState.debugMode) {
-            ctx.strokeStyle = this.color;
-            ctx.lineWidth = 1;
+        // 타워 범위 표시 (항상 표시)
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 0.3; // 반투명하게 설정
         ctx.beginPath();
         ctx.arc(
             this.x * TILE_SIZE + TILE_SIZE/2,
@@ -1318,7 +1318,7 @@ class Tower {
             Math.PI * 2
         );
         ctx.stroke();
-        }
+        ctx.globalAlpha = 1.0; // 투명도 초기화
 
         // 쿨다운 표시
         if (this.cooldown > 0) {
