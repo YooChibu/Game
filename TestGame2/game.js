@@ -2624,7 +2624,7 @@ document.getElementById('mapSelect').addEventListener('change', (e) => {
 
 // 미니맵 그리기 함수
 function drawMinimap() {
-    const minimapCanvas = document.getElementById('minimap');
+    const minimapCanvas = document.getElementById('minimapCanvas');
     if (!minimapCanvas) return;
     
     const minimapCtx = minimapCanvas.getContext('2d');
@@ -2635,47 +2635,70 @@ function drawMinimap() {
     minimapCtx.clearRect(0, 0, minimapWidth, minimapHeight);
     
     // 미니맵 배경색 설정
-    minimapCtx.fillStyle = '#333';
+    minimapCtx.fillStyle = 'rgba(0, 0, 0, 0.8)';
     minimapCtx.fillRect(0, 0, minimapWidth, minimapHeight);
     
     // 경로 그리기
-    minimapCtx.strokeStyle = '#666';
-    minimapCtx.lineWidth = 2;
+    minimapCtx.strokeStyle = '#4CAF50';
+    minimapCtx.lineWidth = 3;
     minimapCtx.beginPath();
     
     const scaleX = minimapWidth / GRID_WIDTH;
     const scaleY = minimapHeight / GRID_HEIGHT;
     
-    currentMap.path.forEach((point, index) => {
-        const x = point.x * scaleX;
-        const y = point.y * scaleY;
+    if (currentMap && currentMap.path) {
+        currentMap.path.forEach((point, index) => {
+            const x = point.x * scaleX;
+            const y = point.y * scaleY;
+            
+            if (index === 0) {
+                minimapCtx.moveTo(x, y);
+            } else {
+                minimapCtx.lineTo(x, y);
+            }
+        });
         
-        if (index === 0) {
-            minimapCtx.moveTo(x, y);
-        } else {
-            minimapCtx.lineTo(x, y);
+        minimapCtx.stroke();
+        
+        // 타워 표시
+        towers.forEach(tower => {
+            const x = tower.x * scaleX;
+            const y = tower.y * scaleY;
+            
+            minimapCtx.fillStyle = tower.color;
+            minimapCtx.beginPath();
+            minimapCtx.arc(x, y, 3, 0, Math.PI * 2);
+            minimapCtx.fill();
+        });
+        
+        // 적 표시
+        enemies.forEach(enemy => {
+            const x = enemy.x * scaleX;
+            const y = enemy.y * scaleY;
+            
+            minimapCtx.fillStyle = enemy.isBoss ? enemy.color : '#FF4444';
+            minimapCtx.beginPath();
+            minimapCtx.arc(x, y, 2, 0, Math.PI * 2);
+            minimapCtx.fill();
+        });
+
+        // 시작점과 끝점 표시
+        if (currentMap.path.length > 0) {
+            // 시작점
+            const start = currentMap.path[0];
+            minimapCtx.fillStyle = '#4CAF50';
+            minimapCtx.beginPath();
+            minimapCtx.arc(start.x * scaleX, start.y * scaleY, 4, 0, Math.PI * 2);
+            minimapCtx.fill();
+
+            // 끝점
+            const end = currentMap.path[currentMap.path.length - 1];
+            minimapCtx.fillStyle = '#FF0000';
+            minimapCtx.beginPath();
+            minimapCtx.arc(end.x * scaleX, end.y * scaleY, 4, 0, Math.PI * 2);
+            minimapCtx.fill();
         }
-    });
-    
-    minimapCtx.stroke();
-    
-    // 타워 표시
-    towers.forEach(tower => {
-        const x = tower.x * scaleX;
-        const y = tower.y * scaleY;
-        
-        minimapCtx.fillStyle = tower.color;
-        minimapCtx.fillRect(x - 2, y - 2, 4, 4);
-    });
-    
-    // 적 표시
-    enemies.forEach(enemy => {
-        const x = enemy.x * scaleX;
-        const y = enemy.y * scaleY;
-        
-        minimapCtx.fillStyle = enemy.isBoss ? enemy.color : 'red';
-        minimapCtx.fillRect(x - 2, y - 2, 4, 4);
-    });
+    }
 }
 
 // 타워 조합 체크 함수

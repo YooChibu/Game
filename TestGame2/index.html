@@ -118,18 +118,20 @@
             border: 1px solid #ccc;
         }
         .minimap {
-            width: 150px;
+            width: 200px;
             height: 150px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin: 10px auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            margin: 10px 0;
         }
 
         .minimap canvas {
             width: 100%;
             height: 100%;
             border: none;
+            border-radius: 6px;
         }
 
         .map-select-container {
@@ -1681,7 +1683,7 @@
             </div>
             
             <div class="minimap">
-                <canvas id="minimapCanvas" width="150" height="150"></canvas>
+                <canvas id="minimapCanvas" width="200" height="150"></canvas>
             </div>
             
             <div class="stats-panel">
