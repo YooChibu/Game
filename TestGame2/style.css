@@ -451,4 +451,265 @@ body {
     color: #FFD700;
     font-weight: bold;
     font-size: 1.2em;
+}
+
+/* 게임 오버 화면 */
+.game-over {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.5s ease;
+}
+
+.game-over-content {
+    background: rgba(42, 42, 42, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    border: 3px solid #4CAF50;
+    box-shadow: 0 0 40px rgba(76, 175, 80, 0.4);
+    animation: scaleIn 0.5s ease;
+    max-width: 500px;
+    width: 90%;
+}
+
+.game-over h2 {
+    color: #4CAF50;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+}
+
+.game-over-stats {
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+/* 보스 등장 효과 */
+.boss-warning {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 0, 0, 0.9);
+    color: white;
+    padding: 30px 60px;
+    border-radius: 15px;
+    font-size: 2em;
+    font-weight: bold;
+    text-transform: uppercase;
+    z-index: 1500;
+    animation: bossWarning 1s ease infinite;
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+    border: 3px solid #ff0000;
+}
+
+/* 특수 효과 */
+.special-effect {
+    position: absolute;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.special-effect.fire {
+    animation: fireEffect 1s ease-out;
+}
+
+.special-effect.ice {
+    animation: iceEffect 1s ease-out;
+}
+
+.special-effect.lightning {
+    animation: lightningEffect 0.5s ease-out;
+}
+
+/* 웨이브 시작 효과 */
+.wave-start {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(76, 175, 80, 0.9);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 12px;
+    font-size: 1.5em;
+    font-weight: bold;
+    z-index: 1500;
+    animation: waveStart 1s ease;
+    box-shadow: 0 0 30px rgba(76, 175, 80, 0.5);
+    border: 2px solid #4CAF50;
+}
+
+/* 애니메이션 */
+@keyframes scaleIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes bossWarning {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 0 50px rgba(255, 0, 0, 0.7);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+    }
+}
+
+@keyframes fireEffect {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.5);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+@keyframes iceEffect {
+    0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2) rotate(180deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1.5) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes lightningEffect {
+    0% {
+        transform: scaleY(0);
+        opacity: 1;
+    }
+    50% {
+        transform: scaleY(1.5);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scaleY(2);
+        opacity: 0;
+    }
+}
+
+@keyframes waveStart {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+/* 툴팁 */
+.tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.95);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    z-index: 1000;
+    pointer-events: none;
+    border: 1px solid #4CAF50;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+    animation: tooltipFade 0.3s ease;
+    max-width: 250px;
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: #4CAF50 transparent transparent transparent;
+}
+
+@keyframes tooltipFade {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 로딩 화면 */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #1a1a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #4CAF50;
+    border-top: 5px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 } 
