@@ -1063,12 +1063,22 @@ class Tower {
         this.experienceToNextLevel = 100;
         this.specialCooldown = 0;
         
+        // 업그레이드 레벨 초기화
+        this.rangeLevel = 0;
+        this.damageLevel = 0;
+        this.speedLevel = 0;
+        this.bulletLevel = 0;
+        
         const towerType = TOWER_TYPES[type];
-        this.damage = towerType.damage;
-        this.range = towerType.range;
-        this.maxCooldown = towerType.cooldown;
+        this.baseDamage = towerType.damage;
+        this.baseRange = towerType.range;
+        this.baseCooldown = towerType.cooldown;
+        this.damage = this.baseDamage;
+        this.range = this.baseRange;
+        this.maxCooldown = this.baseCooldown;
         this.cooldown = 0;
         this.color = towerType.color;
+        this.bulletCount = 1;
         
         // 특수 능력 초기화
         if (type === 'SPLASH') {
@@ -1085,6 +1095,58 @@ class Tower {
             this.buffRange = towerType.buffRange;
             this.buffMultiplier = towerType.buffMultiplier;
         }
+    }
+
+    // 업그레이드 비용 계산
+    getUpgradeCost(upgradeType) {
+        const baseCost = 100;
+        const level = this[`${upgradeType}Level`];
+        return Math.floor(baseCost * Math.pow(1.5, level));
+    }
+
+    // 업그레이드 가능 여부 확인
+    canUpgrade(upgradeType) {
+        const level = this[`${upgradeType}Level`];
+        return level < this.level;
+    }
+
+    // 업그레이드 적용
+    upgrade(upgradeType) {
+        if (!this.canUpgrade(upgradeType)) return false;
+
+        const cost = this.getUpgradeCost(upgradeType);
+        if (gameState.gold < cost) return false;
+
+        gameState.gold -= cost;
+        this[`${upgradeType}Level`]++;
+
+        switch(upgradeType) {
+            case 'range':
+                this.range = this.baseRange * (1 + this.rangeLevel * 0.2);
+                break;
+            case 'damage':
+                this.damage = this.baseDamage * (1 + this.damageLevel * 0.3);
+                break;
+            case 'speed':
+                this.maxCooldown = this.baseCooldown * (1 - this.speedLevel * 0.1);
+                break;
+            case 'bullet':
+                this.bulletCount = 1 + this.bulletLevel;
+                break;
+        }
+
+        showUpgradeEffect(this.x, this.y);
+        return true;
+    }
+
+    // 판매 가격 계산
+    getSellValue() {
+        const totalUpgradeCost = 
+            this.getUpgradeCost('range') +
+            this.getUpgradeCost('damage') +
+            this.getUpgradeCost('speed') +
+            this.getUpgradeCost('bullet');
+        return Math.floor(totalUpgradeCost * 0.7);
     }
 
     gainExperience(amount) {
@@ -1974,6 +2036,7 @@ function showTowerBuildMenu(x, y, clientX, clientY) {
     setupMenuCloseHandler(towerMenu);
 }
 
+// 타워 업그레이드 메뉴 표시 함수 수정
 function showTowerUpgradeMenu(tower, clientX, clientY) {
     const existingMenu = document.querySelector('.tower-menu');
     if (existingMenu && existingMenu.parentNode) {
@@ -1982,37 +2045,131 @@ function showTowerUpgradeMenu(tower, clientX, clientY) {
 
     const towerMenu = document.createElement('div');
     towerMenu.className = 'tower-menu';
-    towerMenu.style.left = `${clientX}px`;
-    towerMenu.style.top = `${clientY}px`;
+    
+    // 메뉴 위치 조정
+    const menuWidth = 300;
+    const menuHeight = 400;
+    let menuX = clientX;
+    let menuY = clientY;
+    
+    // 화면 경계 체크
+    if (menuX + menuWidth > window.innerWidth) {
+        menuX = window.innerWidth - menuWidth;
+    }
+    if (menuY + menuHeight > window.innerHeight) {
+        menuY = window.innerHeight - menuHeight;
+    }
+    
+    towerMenu.style.left = `${menuX}px`;
+    towerMenu.style.top = `${menuY}px`;
 
-    const upgradeCost = tower.getUpgradeCost();
-    const sellValue = tower.getSellValue();
+    // 타워 헤더
+    const header = document.createElement('div');
+    header.className = 'tower-header';
+    header.innerHTML = `
+        <div class="tower-title">
+            <h3>${TOWER_TYPES[tower.type].name}</h3>
+            <span class="tower-level">Lv.${tower.level}</span>
+        </div>
+        <div class="tower-stats">
+            <div class="stat-item">
+                <span class="stat-icon">🎯</span>
+                <span class="stat-value">${tower.range.toFixed(1)}</span>
+                <span class="stat-level">(${tower.rangeLevel}/${tower.level})</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">⚔️</span>
+                <span class="stat-value">${tower.damage.toFixed(1)}</span>
+                <span class="stat-level">(${tower.damageLevel}/${tower.level})</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">⚡</span>
+                <span class="stat-value">${(60/tower.maxCooldown).toFixed(1)}/초</span>
+                <span class="stat-level">(${tower.speedLevel}/${tower.level})</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">🎯</span>
+                <span class="stat-value">${tower.bulletCount}발</span>
+                <span class="stat-level">(${tower.bulletLevel}/${tower.level})</span>
+            </div>
+        </div>
+    `;
+    towerMenu.appendChild(header);
 
-    const upgradeButton = document.createElement('button');
-    upgradeButton.textContent = `업그레이드 (${upgradeCost} 골드)`;
-    upgradeButton.disabled = gameState.gold < upgradeCost;
-    upgradeButton.onclick = () => {
-        if (gameState.gold >= upgradeCost) {
-            gameState.gold -= upgradeCost;
-            tower.upgrade();
-            if (towerMenu.parentNode) {
-                towerMenu.parentNode.removeChild(towerMenu);
-            }
+    // 업그레이드 섹션
+    const upgradeSection = document.createElement('div');
+    upgradeSection.className = 'upgrade-section';
+    
+    const upgradeTypes = [
+        { type: 'range', name: '사거리', icon: '🎯', description: '공격 범위 증가' },
+        { type: 'damage', name: '데미지', icon: '⚔️', description: '공격력 증가' },
+        { type: 'speed', name: '공격속도', icon: '⚡', description: '공격 속도 증가' },
+        { type: 'bullet', name: '발사체', icon: '🎯', description: '동시 발사 수 증가' }
+    ];
+
+    upgradeTypes.forEach(({ type, name, icon, description }) => {
+        const upgradeItem = document.createElement('div');
+        upgradeItem.className = 'upgrade-item';
+        
+        const cost = tower.getUpgradeCost(type);
+        const canUpgrade = tower.canUpgrade(type);
+        
+        upgradeItem.innerHTML = `
+            <div class="upgrade-info">
+                <div class="upgrade-header">
+                    <span class="upgrade-icon">${icon}</span>
+                    <span class="upgrade-name">${name}</span>
+                </div>
+                <div class="upgrade-description">${description}</div>
+                <div class="upgrade-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${(tower[`${type}Level`] / tower.level) * 100}%"></div>
+                    </div>
+                    <span class="progress-text">${tower[`${type}Level`]}/${tower.level}</span>
+                </div>
+            </div>
+            <button class="upgrade-button" ${!canUpgrade || gameState.gold < cost ? 'disabled' : ''}>
+                ${cost} 골드
+            </button>
+        `;
+        
+        const upgradeButton = upgradeItem.querySelector('.upgrade-button');
+        if (!canUpgrade) {
+            upgradeButton.title = '타워 레벨을 올려야 더 업그레이드할 수 있습니다.';
         }
-    };
-    towerMenu.appendChild(upgradeButton);
+        
+        upgradeButton.onclick = () => {
+            if (tower.upgrade(type)) {
+                showTowerUpgradeMenu(tower, clientX, clientY);
+            }
+        };
+        
+        upgradeSection.appendChild(upgradeItem);
+    });
+    
+    towerMenu.appendChild(upgradeSection);
 
-    const sellButton = document.createElement('button');
-    sellButton.textContent = `판매 (${sellValue} 골드)`;
-    sellButton.onclick = () => {
+    // 판매 버튼
+    const sellSection = document.createElement('div');
+    sellSection.className = 'sell-section';
+    const sellValue = tower.getSellValue();
+    sellSection.innerHTML = `
+        <button class="sell-button">
+            <span class="sell-icon">💰</span>
+            <span class="sell-text">판매</span>
+            <span class="sell-value">${sellValue} 골드</span>
+        </button>
+    `;
+    
+    sellSection.querySelector('.sell-button').onclick = () => {
         gameState.gold += sellValue;
         towers = towers.filter(t => t !== tower);
         if (towerMenu.parentNode) {
             towerMenu.parentNode.removeChild(towerMenu);
         }
     };
-    towerMenu.appendChild(sellButton);
-
+    
+    towerMenu.appendChild(sellSection);
     document.body.appendChild(towerMenu);
     setupMenuCloseHandler(towerMenu);
 }
@@ -2450,6 +2607,198 @@ document.head.insertAdjacentHTML('beforeend', `
             20% { opacity: 1; }
             80% { opacity: 1; }
             100% { opacity: 0; }
+        }
+    </style>
+`);
+
+// CSS 스타일 추가
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        .tower-menu {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-family: Arial, sans-serif;
+            z-index: 1000;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .tower-header {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #4CAF50;
+        }
+
+        .tower-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .tower-title h3 {
+            margin: 0;
+            color: #4CAF50;
+        }
+
+        .tower-level {
+            background: #4CAF50;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+
+        .tower-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9em;
+        }
+
+        .stat-icon {
+            font-size: 1.2em;
+        }
+
+        .stat-value {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .stat-level {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        .upgrade-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .upgrade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(76, 175, 80, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .upgrade-item:hover {
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .upgrade-info {
+            flex: 1;
+        }
+
+        .upgrade-header {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .upgrade-icon {
+            font-size: 1.2em;
+        }
+
+        .upgrade-name {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .upgrade-description {
+            font-size: 0.8em;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .upgrade-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 0.8em;
+            color: #888;
+        }
+
+        .upgrade-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .upgrade-button:hover:not(:disabled) {
+            background: #45a049;
+        }
+
+        .upgrade-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .sell-section {
+            text-align: center;
+        }
+
+        .sell-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            width: 100%;
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .sell-button:hover {
+            background: #d32f2f;
+        }
+
+        .sell-icon {
+            font-size: 1.2em;
+        }
+
+        .sell-value {
+            margin-left: auto;
+            font-weight: bold;
         }
     </style>
 `);
