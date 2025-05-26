@@ -2053,8 +2053,14 @@ canvas.addEventListener('click', (e) => {
     if (gameState.isGameOver || !gameState.isStarted || gameState.isPaused) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
-    const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    const x = Math.floor(((e.clientX - rect.left) * scaleX) / TILE_SIZE);
+    const y = Math.floor(((e.clientY - rect.top) * scaleY) / TILE_SIZE);
+
+    // 좌표가 유효한 범위 내에 있는지 확인
+    if (x < 0 || x >= GRID_WIDTH || y < 0 || y >= GRID_HEIGHT) return;
 
     const clickedTower = towers.find(tower => tower.x === x && tower.y === y);
     if (clickedTower) {
