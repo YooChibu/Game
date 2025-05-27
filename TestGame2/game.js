@@ -3613,7 +3613,9 @@ document.head.insertAdjacentHTML('beforeend', `
             width: 100%;
             text-align: center;
             height: 24px;
-            line-height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .control-button:hover {
@@ -3654,7 +3656,7 @@ document.head.insertAdjacentHTML('beforeend', `
 
         /* 다음 웨이브 버튼 스타일 수정 */
         .wave-start-button {
-            padding: 6px 8px;
+            padding: 0 8px;
             background: linear-gradient(to bottom, #2196F3, #1976D2);
             border: none;
             color: white;
@@ -3663,12 +3665,24 @@ document.head.insertAdjacentHTML('beforeend', `
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             height: 28px;
-            line-height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
         }
 
         .wave-start-button:hover {
             background: linear-gradient(to bottom, #1976D2, #1565C0);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .wave-start-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
         }
 
         /* 모바일 최적화 */
@@ -3679,14 +3693,12 @@ document.head.insertAdjacentHTML('beforeend', `
                 padding: 3px 5px;
                 font-size: 10px;
                 height: 22px;
-                line-height: 14px;
             }
 
             .wave-start-button {
-                padding: 4px 6px;
+                padding: 0 6px;
                 font-size: 11px;
                 height: 26px;
-                line-height: 14px;
             }
         }
     </style>
