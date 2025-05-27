@@ -1575,6 +1575,72 @@ class Enemy {
             this.pattern = ENEMY_PATTERNS[randomPattern];
             this.name = `${this.name} (${this.pattern.name})`;
         }
+
+        // 적 스킬 정의
+        const ENEMY_SKILLS = {
+            SHIELD: {
+                name: '방어막',
+                cooldown: 300, // 5초
+                effect: function(enemy) {
+                    enemy.isInvincible = true;
+                    showSkillEffect(enemy.x, enemy.y, '방어막');
+                    setTimeout(() => {
+                        enemy.isInvincible = false;
+                    }, 2000); // 2초간 무적
+                }
+            },
+            TELEPORT: {
+                name: '순간이동',
+                cooldown: 400,
+                effect: function(enemy) {
+                    if (enemy.pathIndex + 3 < currentMap.path.length - 1) {
+                        enemy.pathIndex += 3;
+                        const target = currentMap.path[enemy.pathIndex];
+                        enemy.x = target.x;
+                        enemy.y = target.y;
+                        showSkillEffect(enemy.x, enemy.y, '순간이동');
+                    }
+                }
+            },
+            HEAL_SELF: {
+                name: '자가회복',
+                cooldown: 350,
+                effect: function(enemy) {
+                    const heal = Math.floor(enemy.maxHealth * 0.3);
+                    enemy.health = Math.min(enemy.maxHealth, enemy.health + heal);
+                    showSkillEffect(enemy.x, enemy.y, '자가회복');
+                }
+            },
+            HEAL_AOE: {
+                name: '광역 힐',
+                cooldown: 500,
+                effect: function(enemy) {
+                    enemies.forEach(e => {
+                        if (e !== enemy && Math.abs(e.x - enemy.x) < 2 && Math.abs(e.y - enemy.y) < 2) {
+                            e.health = Math.min(e.maxHealth, e.health + Math.floor(e.maxHealth * 0.2));
+                            showSkillEffect(e.x, e.y, '힐');
+                        }
+                    });
+                    showSkillEffect(enemy.x, enemy.y, '광역힐');
+                }
+            }
+        };
+
+        // Enemy 생성자 내 (보스/특수 적에 스킬 부여 예시)
+        // 예시: 탱커는 방어막, 보스는 순간이동, 힐러는 광역힐
+        if (this.type === 'TANK') {
+            this.skill = ENEMY_SKILLS.SHIELD;
+            this.skillCooldown = this.skill.cooldown;
+        } else if (this.type === 'BOSS') {
+            this.skill = ENEMY_SKILLS.TELEPORT;
+            this.skillCooldown = this.skill.cooldown;
+        } else if (this.type === 'HEALER') {
+            this.skill = ENEMY_SKILLS.HEAL_AOE;
+            this.skillCooldown = this.skill.cooldown;
+        } else {
+            this.skill = null;
+            this.skillCooldown = 0;
+        }
     }
 
     calculateInitialLevel(wave) {
@@ -1748,6 +1814,15 @@ class Enemy {
             showBossPatternEffect(this.x, this.y, this.pattern.name);
         }
         if (this.patternCooldown > 0) this.patternCooldown--;
+
+        // Enemy update() 내 추가
+        if (this.skill && this.skillCooldown > 0) {
+            this.skillCooldown--;
+        }
+        if (this.skill && this.skillCooldown === 0) {
+            this.skill.effect(this);
+            this.skillCooldown = this.skill.cooldown;
+        }
 
         return false;
     }
@@ -4621,4 +4696,72 @@ function showAmbushEffect(x, y) {
     };
 
     animate();
+}
+
+// 적 스킬 정의
+const ENEMY_SKILLS = {
+    SHIELD: {
+        name: '방어막',
+        cooldown: 300, // 5초
+        effect: function(enemy) {
+            enemy.isInvincible = true;
+            showSkillEffect(enemy.x, enemy.y, '방어막');
+            setTimeout(() => {
+                enemy.isInvincible = false;
+            }, 2000); // 2초간 무적
+        }
+    },
+    TELEPORT: {
+        name: '순간이동',
+        cooldown: 400,
+        effect: function(enemy) {
+            if (enemy.pathIndex + 3 < currentMap.path.length - 1) {
+                enemy.pathIndex += 3;
+                const target = currentMap.path[enemy.pathIndex];
+                enemy.x = target.x;
+                enemy.y = target.y;
+                showSkillEffect(enemy.x, enemy.y, '순간이동');
+            }
+        }
+    },
+    HEAL_SELF: {
+        name: '자가회복',
+        cooldown: 350,
+        effect: function(enemy) {
+            const heal = Math.floor(enemy.maxHealth * 0.3);
+            enemy.health = Math.min(enemy.maxHealth, enemy.health + heal);
+            showSkillEffect(enemy.x, enemy.y, '자가회복');
+        }
+    },
+    HEAL_AOE: {
+        name: '광역 힐',
+        cooldown: 500,
+        effect: function(enemy) {
+            enemies.forEach(e => {
+                if (e !== enemy && Math.abs(e.x - enemy.x) < 2 && Math.abs(e.y - enemy.y) < 2) {
+                    e.health = Math.min(e.maxHealth, e.health + Math.floor(e.maxHealth * 0.2));
+                    showSkillEffect(e.x, e.y, '힐');
+                }
+            });
+            showSkillEffect(enemy.x, enemy.y, '광역힐');
+        }
+    }
+};
+
+// 적 스킬 시각 효과
+function showSkillEffect(x, y, name) {
+    const effect = document.createElement('div');
+    effect.className = 'enemy-skill-effect';
+    effect.textContent = name;
+    effect.style.position = 'absolute';
+    effect.style.left = `${x * TILE_SIZE + TILE_SIZE / 2}px`;
+    effect.style.top = `${y * TILE_SIZE}px`;
+    effect.style.transform = 'translate(-50%, -100%)';
+    effect.style.color = '#00eaff';
+    effect.style.fontWeight = 'bold';
+    effect.style.fontSize = '14px';
+    effect.style.pointerEvents = 'none';
+    effect.style.zIndex = 1000;
+    document.querySelector('.game-area').appendChild(effect);
+    setTimeout(() => effect.remove(), 1200);
 }
