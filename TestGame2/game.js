@@ -3353,3 +3353,24 @@ document.head.insertAdjacentHTML('beforeend', `
         }
     </style>
 `);
+
+// 음향 설정 버튼 이벤트 리스너
+document.getElementById('soundToggleBtn').addEventListener('click', function() {
+    toggleSound();
+    this.classList.toggle('muted');
+    this.textContent = soundEnabled ? '🔊 효과음' : '🔇 효과음';
+});
+
+document.getElementById('musicToggleBtn').addEventListener('click', function() {
+    toggleMusic();
+    this.classList.toggle('muted');
+    this.textContent = musicEnabled ? '🎵 배경음악' : '🎵 배경음악';
+});
+
+// 게임 시작 시 배경음악 자동 재생
+window.addEventListener('load', function() {
+    if (musicEnabled) {
+        sounds.bgm.loop = true;
+        sounds.bgm.play().catch(error => console.log('BGM 재생 실패:', error));
+    }
+});
