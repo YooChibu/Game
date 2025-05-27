@@ -1047,13 +1047,15 @@ function playSound(soundName) {
 
 function toggleSound() {
     soundEnabled = !soundEnabled;
-    if (!soundEnabled) {
-        Object.values(sounds).forEach(sound => sound.pause());
-    }
+    const soundBtn = document.getElementById('soundToggleBtn');
+    soundBtn.classList.toggle('muted', !soundEnabled);
 }
 
 function toggleMusic() {
     musicEnabled = !musicEnabled;
+    const musicBtn = document.getElementById('musicToggleBtn');
+    musicBtn.classList.toggle('muted', !musicEnabled);
+    
     if (musicEnabled) {
         sounds.bgm.loop = true;
         sounds.bgm.play().catch(error => console.log('BGM 재생 실패:', error));
@@ -3489,3 +3491,104 @@ document.head.insertAdjacentHTML('beforeend', `
         }
     </style>
 `);
+
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        /* 기존 스타일 유지 */
+        // ... existing code ...
+
+        /* 사운드 컨트롤 스타일 */
+        .sound-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .sound-button {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #4CAF50;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .sound-button:hover {
+            background: rgba(0, 0, 0, 0.8);
+            border-color: #45a049;
+        }
+
+        .sound-icon {
+            font-size: 18px;
+            margin-right: 8px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .sound-label {
+            flex-grow: 1;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .sound-status {
+            font-size: 12px;
+            padding: 2px 6px;
+            background: rgba(76, 175, 80, 0.2);
+            border-radius: 4px;
+            color: #4CAF50;
+        }
+
+        .sound-button.muted .sound-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff4444;
+        }
+
+        .sound-button.muted .sound-status::after {
+            content: "꺼짐";
+        }
+
+        .sound-button:not(.muted) .sound-status::after {
+            content: "켜짐";
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 768px) {
+            // ... existing code ...
+
+            .sound-button {
+                padding: 6px 10px;
+            }
+
+            .sound-icon {
+                font-size: 16px;
+                margin-right: 6px;
+            }
+
+            .sound-label {
+                font-size: 12px;
+            }
+
+            .sound-status {
+                font-size: 10px;
+                padding: 1px 4px;
+            }
+        }
+    </style>
+`);
+
+// 초기 상태 설정
+window.addEventListener('load', () => {
+    const soundBtn = document.getElementById('soundToggleBtn');
+    const musicBtn = document.getElementById('musicToggleBtn');
+    
+    soundBtn.classList.toggle('muted', !soundEnabled);
+    musicBtn.classList.toggle('muted', !musicEnabled);
+});
