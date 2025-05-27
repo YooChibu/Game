@@ -2609,4 +2609,23 @@ body {
 #waveStartButton:disabled:hover {
     transform: none;
     box-shadow: none;
-} 
+}
+
+/* 저장/불러오기 알림 스타일 */
+.save-load-notification {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    border-radius: 5px;
+    z-index: 1000;
+    font-size: 14px;
+    text-align: center;
+    min-width: 200px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+  

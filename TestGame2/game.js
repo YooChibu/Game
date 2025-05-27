@@ -2613,10 +2613,16 @@ function updateTowerLimit() {
 }
 
 // 저장/불러오기 알림
-function showSaveLoadNotification(message) {
+function showSaveLoadNotification(message, isError = false) {
     const notification = document.getElementById('saveLoadNotification');
+    if (!notification) {
+        console.error('알림 요소를 찾을 수 없습니다.');
+        return;
+    }
+    
     notification.textContent = message;
     notification.style.display = 'block';
+    notification.style.backgroundColor = isError ? 'rgba(255, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.8)';
     
     setTimeout(() => {
         notification.style.display = 'none';
@@ -2636,48 +2642,89 @@ function calculateWaveReward() {
 
 // 게임 저장
 function saveGame() {
-    const saveData = {
-        gameState: {
-            ...gameState,
-            isPaused: true
-        },
-        towers: towers.map(tower => ({
-            x: tower.x,
-            y: tower.y,
-            type: tower.type,
-            level: tower.level,
-            experience: tower.experience,
-            experienceToNextLevel: tower.experienceToNextLevel
-        })),
-        achievements: Object.fromEntries(
-            Object.entries(ACHIEVEMENTS).map(([key, achievement]) => [key, achievement.unlocked])
-        ),
-        currentMap: gameState.currentMap,
-        timestamp: Date.now()
-    };
-    
-    localStorage.setItem('towerDefenseSave', JSON.stringify(saveData));
-    showSaveLoadNotification('게임이 저장되었습니다.');
+    try {
+        const saveData = {
+            gameState: {
+                ...gameState,
+                isPaused: true
+            },
+            towers: towers.map(tower => ({
+                x: tower.x,
+                y: tower.y,
+                type: tower.type,
+                level: tower.level,
+                experience: tower.experience,
+                experienceToNextLevel: tower.experienceToNextLevel
+            })),
+            achievements: Object.fromEntries(
+                Object.entries(ACHIEVEMENTS).map(([key, achievement]) => [key, achievement.unlocked])
+            ),
+            currentMap: gameState.currentMap,
+            timestamp: Date.now()
+        };
+
+        // 저장 데이터 검증
+        if (!validateSaveData(saveData)) {
+            throw new Error('저장할 데이터가 유효하지 않습니다.');
+        }
+
+        // 저장 데이터 크기 확인 (5MB 제한)
+        const saveString = JSON.stringify(saveData);
+        if (saveString.length > 5 * 1024 * 1024) {
+            throw new Error('저장 데이터가 너무 큽니다.');
+        }
+
+        // localStorage 저장 시도
+        try {
+            localStorage.setItem('towerDefenseSave', saveString);
+            showSaveLoadNotification('게임이 저장되었습니다.');
+        } catch (storageError) {
+            // localStorage 용량 초과 시 이전 저장 데이터 삭제 후 재시도
+            if (storageError.name === 'QuotaExceededError') {
+                localStorage.removeItem('towerDefenseSave');
+                localStorage.setItem('towerDefenseSave', saveString);
+                showSaveLoadNotification('이전 저장 데이터를 삭제하고 게임을 저장했습니다.');
+            } else {
+                throw storageError;
+            }
+        }
+    } catch (error) {
+        console.error('게임 저장 실패:', error);
+        showSaveLoadNotification(`저장 실패: ${error.message}`, true);
+    }
 }
 
 // 게임 불러오기
 function loadGame() {
-    const saveData = localStorage.getItem('towerDefenseSave');
-    if (saveData) {
+    try {
+        const saveData = localStorage.getItem('towerDefenseSave');
+        if (!saveData) {
+            showSaveLoadNotification('저장된 게임이 없습니다.', true);
+            return;
+        }
+
         const data = JSON.parse(saveData);
         
+        // 저장 데이터 검증
+        if (!validateSaveData(data)) {
+            throw new Error('저장된 데이터가 손상되었습니다.');
+        }
+        
+        // 저장 시간 확인 (24시간 제한)
         const saveTime = new Date(data.timestamp);
         const currentTime = new Date();
         const hoursDiff = (currentTime - saveTime) / (1000 * 60 * 60);
         
         if (hoursDiff > 24) {
-            showSaveLoadNotification('저장된 게임이 만료되었습니다.');
+            showSaveLoadNotification('저장된 게임이 만료되었습니다.', true);
             return;
         }
         
+        // 게임 상태 복원
         Object.assign(gameState, data.gameState);
         selectMap(data.currentMap);
         
+        // 타워 복원
         towers = data.towers.map(towerData => {
             const tower = new Tower(towerData.x, towerData.y, towerData.type);
             tower.experience = towerData.experience;
@@ -2691,15 +2738,55 @@ function loadGame() {
             return tower;
         });
         
+        // 업적 복원
         Object.entries(data.achievements).forEach(([key, unlocked]) => {
-            ACHIEVEMENTS[key].unlocked = unlocked;
+            if (ACHIEVEMENTS[key]) {
+                ACHIEVEMENTS[key].unlocked = unlocked;
+            }
         });
         
         updateTowerLimit();
         showSaveLoadNotification('게임을 불러왔습니다.');
-    } else {
-        showSaveLoadNotification('저장된 게임이 없습니다.');
+    } catch (error) {
+        console.error('게임 불러오기 실패:', error);
+        showSaveLoadNotification(`불러오기 실패: ${error.message}`, true);
     }
+}
+
+// 저장 데이터 검증
+function validateSaveData(saveData) {
+    const requiredFields = ['gameState', 'towers', 'achievements', 'currentMap', 'timestamp'];
+    
+    // 필수 필드 확인
+    for (const field of requiredFields) {
+        if (!(field in saveData)) {
+            return false;
+        }
+    }
+    
+    // 게임 상태 검증
+    const gameStateFields = ['gold', 'lives', 'wave', 'isGameOver', 'waveInProgress', 'enemiesRemaining', 'isPaused', 'isStarted', 'score', 'difficulty'];
+    for (const field of gameStateFields) {
+        if (!(field in saveData.gameState)) {
+            return false;
+        }
+    }
+    
+    // 타워 데이터 검증
+    if (!Array.isArray(saveData.towers)) {
+        return false;
+    }
+    
+    for (const tower of saveData.towers) {
+        const towerFields = ['x', 'y', 'type', 'level', 'experience', 'experienceToNextLevel'];
+        for (const field of towerFields) {
+            if (!(field in tower)) {
+                return false;
+            }
+        }
+    }
+    
+    return true;
 }
 
 // 경험치 획득 및 레벨업
