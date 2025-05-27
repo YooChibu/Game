@@ -3746,3 +3746,32 @@ document.head.insertAdjacentHTML('beforeend', `
         }
     </style>
 `);
+
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        .info-bar {
+            gap: 6px;
+            padding: 8px;
+        }
+        .info-item {
+            padding: 4px 6px;
+            font-size: 12px;
+        }
+        .info-icon {
+            font-size: 16px;
+        }
+        @media (max-width: 768px) {
+            .info-bar {
+                gap: 4px;
+                padding: 4px;
+            }
+            .info-item {
+                padding: 2px 4px;
+                font-size: 11px;
+            }
+            .info-icon {
+                font-size: 13px;
+            }
+        }
+    </style>
+`);
