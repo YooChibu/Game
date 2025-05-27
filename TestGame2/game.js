@@ -1836,10 +1836,10 @@ class Enemy {
         // 적 기본 모양
         ctx.save();
         let baseColor = this.color;
-        // 상태이상별 색상 오버레이
+        // 상태이상별 색상 오버레이 및 오라
+        let statusIcons = [];
         if (this.statusEffects.has('POISON')) {
             baseColor = 'limegreen';
-            // 독 파티클
             ctx.globalAlpha = 0.5;
             ctx.beginPath();
             ctx.arc(
@@ -1851,10 +1851,10 @@ class Enemy {
             ctx.fillStyle = 'rgba(0,255,0,0.2)';
             ctx.fill();
             ctx.globalAlpha = 1.0;
+            statusIcons.push('🟢');
         }
         if (this.statusEffects.has('FROZEN')) {
             baseColor = 'deepskyblue';
-            // 빙결 오라
             ctx.globalAlpha = 0.5;
             ctx.beginPath();
             ctx.arc(
@@ -1866,10 +1866,10 @@ class Enemy {
             ctx.fillStyle = 'rgba(0,200,255,0.18)';
             ctx.fill();
             ctx.globalAlpha = 1.0;
+            statusIcons.push('❄️');
         }
         if (this.statusEffects.has('BURNING')) {
             baseColor = 'orangered';
-            // 화상 불꽃
             ctx.globalAlpha = 0.5;
             ctx.beginPath();
             ctx.arc(
@@ -1881,6 +1881,7 @@ class Enemy {
             ctx.fillStyle = 'rgba(255,80,0,0.18)';
             ctx.fill();
             ctx.globalAlpha = 1.0;
+            statusIcons.push('🔥');
         }
         ctx.fillStyle = baseColor;
         ctx.fillRect(
@@ -1889,6 +1890,35 @@ class Enemy {
             TILE_SIZE - 10,
             TILE_SIZE - 10
         );
+        // 그룹 버프 오라
+        if (this.groupSpeedBuff && this.groupSpeedBuff > 1.01) {
+            ctx.globalAlpha = 0.3;
+            ctx.beginPath();
+            ctx.arc(
+                this.x * TILE_SIZE + TILE_SIZE / 2,
+                this.y * TILE_SIZE + TILE_SIZE / 2,
+                TILE_SIZE/2 + 10 + Math.sin(Date.now()/100)*2,
+                0, Math.PI * 2
+            );
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.globalAlpha = 1.0;
+        }
+        if (this.groupDefenseBuff && this.groupDefenseBuff > 1.01) {
+            ctx.globalAlpha = 0.3;
+            ctx.beginPath();
+            ctx.arc(
+                this.x * TILE_SIZE + TILE_SIZE / 2,
+                this.y * TILE_SIZE + TILE_SIZE / 2,
+                TILE_SIZE/2 + 14 + Math.sin(Date.now()/120)*2,
+                0, Math.PI * 2
+            );
+            ctx.strokeStyle = '#ffaa00';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.globalAlpha = 1.0;
+        }
         // 방어막(무적) 오라
         if (this.isInvincible) {
             ctx.save();
@@ -1916,7 +1946,39 @@ class Enemy {
                 TILE_SIZE - 10
             );
         }
+        // 보스/특수 적 강조 오라
+        if (this.type === 'BOSS') {
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.arc(
+                this.x * TILE_SIZE + TILE_SIZE / 2,
+                this.y * TILE_SIZE + TILE_SIZE / 2,
+                TILE_SIZE/2 + 18 + Math.sin(Date.now()/80)*3,
+                0, Math.PI * 2
+            );
+            ctx.strokeStyle = '#ff00ff';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.globalAlpha = 1.0;
+        }
         ctx.restore();
+        // 상태이상/스킬/쿨다운 아이콘 표시
+        if (statusIcons.length > 0 || (this.skill && this.skillCooldown > 0)) {
+            ctx.save();
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            let icons = statusIcons.join(' ');
+            if (this.skill && this.skillCooldown > 0) {
+                icons += ' ⏳';
+            }
+            ctx.fillStyle = '#fff';
+            ctx.fillText(
+                icons,
+                this.x * TILE_SIZE + TILE_SIZE / 2,
+                this.y * TILE_SIZE - 18
+            );
+            ctx.restore();
+        }
 
         // 레벨 표시
         ctx.fillStyle = 'white';
