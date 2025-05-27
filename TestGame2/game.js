@@ -1567,6 +1567,14 @@ class Enemy {
         this.isInvincible = false;
         this.patternCooldown = 0;
         this.healCooldown = 0;
+
+        // AI 패턴 초기화
+        if (!isBoss) {
+            const patterns = Object.keys(ENEMY_PATTERNS);
+            const randomPattern = patterns[Math.floor(Math.random() * patterns.length)];
+            this.pattern = ENEMY_PATTERNS[randomPattern];
+            this.name = `${this.name} (${this.pattern.name})`;
+        }
     }
 
     calculateInitialLevel(wave) {
@@ -1724,6 +1732,12 @@ class Enemy {
             return true;
         }
 
+        // AI 패턴 업데이트
+        if (this.pattern && this.pattern.update) {
+            const shouldRemove = this.pattern.update(this);
+            if (shouldRemove) return true;
+        }
+
         // 치유사 능력 사용
         this.healNearbyEnemies();
 
@@ -1735,20 +1749,6 @@ class Enemy {
         }
         if (this.patternCooldown > 0) this.patternCooldown--;
 
-        // 이동
-        const targetX = currentMap.path[this.pathIndex + 1].x;
-        const targetY = currentMap.path[this.pathIndex + 1].y;
-        
-        const dx = targetX - this.x;
-        const dy = targetY - this.y;
-        
-        if (Math.abs(dx) < this.speed && Math.abs(dy) < this.speed) {
-            this.pathIndex++;
-        } else {
-            this.x += dx * this.speed;
-            this.y += dy * this.speed;
-        }
-        
         return false;
     }
 
@@ -1810,6 +1810,7 @@ class Enemy {
         // 이름 표시
         ctx.fillStyle = 'white';
         ctx.font = '12px Arial';
+        ctx.textAlign = 'left';
         ctx.fillText(
             this.name,
             this.x * TILE_SIZE,
@@ -4443,6 +4444,176 @@ function showHealEffect(x, y) {
             Math.PI * 2
         );
         ctx.fill();
+        ctx.restore();
+
+        effect.currentFrame++;
+        requestAnimationFrame(animate);
+    };
+
+    animate();
+}
+
+// 적 AI 패턴 상수
+const ENEMY_PATTERNS = {
+    NORMAL: {
+        name: '일반',
+        description: '기본 경로를 따라 이동',
+        update: function(enemy) {
+            if (enemy.pathIndex >= currentMap.path.length - 1) {
+                gameState.lives--;
+                return true;
+            }
+            const target = currentMap.path[enemy.pathIndex + 1];
+            const dx = target.x - enemy.x;
+            const dy = target.y - enemy.y;
+            if (Math.abs(dx) < enemy.speed && Math.abs(dy) < enemy.speed) {
+                enemy.pathIndex++;
+            } else {
+                enemy.x += dx * enemy.speed;
+                enemy.y += dy * enemy.speed;
+            }
+            return false;
+        }
+    },
+    ZIGZAG: {
+        name: '지그재그',
+        description: '경로를 따라가면서 좌우로 살짝 흔들림',
+        update: function(enemy) {
+            if (enemy.pathIndex >= currentMap.path.length - 1) {
+                gameState.lives--;
+                return true;
+            }
+            const prev = currentMap.path[enemy.pathIndex];
+            const target = currentMap.path[enemy.pathIndex + 1];
+            const dx = target.x - prev.x;
+            const dy = target.y - prev.y;
+            // 경로의 법선 벡터(좌우 흔들림)
+            const nx = -dy;
+            const ny = dx;
+            if (enemy.zigzagFrame === undefined) enemy.zigzagFrame = 0;
+            enemy.zigzagFrame++;
+            const offset = Math.sin(enemy.zigzagFrame * 0.2) * 0.2; // 0.2칸 이내로 흔들림
+            // 목표 위치 계산 (경로 + 흔들림)
+            const tx = target.x + nx * offset;
+            const ty = target.y + ny * offset;
+            const ddx = tx - enemy.x;
+            const ddy = ty - enemy.y;
+            if (Math.abs(ddx) < enemy.speed && Math.abs(ddy) < enemy.speed) {
+                enemy.pathIndex++;
+            } else {
+                enemy.x += ddx * enemy.speed;
+                enemy.y += ddy * enemy.speed;
+            }
+            return false;
+        }
+    },
+    SWARM: {
+        name: '무리',
+        description: '경로를 따라가면서 가까운 적과 뭉침',
+        update: function(enemy) {
+            if (enemy.pathIndex >= currentMap.path.length - 1) {
+                gameState.lives--;
+                return true;
+            }
+            // 경로 기본 이동
+            const target = currentMap.path[enemy.pathIndex + 1];
+            let dx = target.x - enemy.x;
+            let dy = target.y - enemy.y;
+            // 가까운 적과의 거리 보정(경로에서 크게 벗어나지 않게 0.1칸 이내로만 영향)
+            let minDist = Infinity;
+            let closest = null;
+            enemies.forEach(other => {
+                if (other !== enemy) {
+                    const dist = Math.sqrt((other.x - enemy.x) ** 2 + (other.y - enemy.y) ** 2);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closest = other;
+                    }
+                }
+            });
+            if (closest && minDist > 0.1 && minDist < 2) {
+                dx += (closest.x - enemy.x) * 0.05;
+                dy += (closest.y - enemy.y) * 0.05;
+            }
+            if (Math.abs(dx) < enemy.speed && Math.abs(dy) < enemy.speed) {
+                enemy.pathIndex++;
+            } else {
+                enemy.x += dx * enemy.speed;
+                enemy.y += dy * enemy.speed;
+            }
+            return false;
+        }
+    },
+    AMBUSH: {
+        name: '매복',
+        description: '경로에서 잠시 멈췄다가 빠르게 돌진',
+        update: function(enemy) {
+            if (enemy.pathIndex >= currentMap.path.length - 1) {
+                gameState.lives--;
+                return true;
+            }
+            if (!enemy.ambushState) {
+                enemy.ambushState = 'hiding';
+                enemy.ambushTimer = 60;
+                enemy.originalSpeed = enemy.speed;
+            }
+            switch(enemy.ambushState) {
+                case 'hiding':
+                    enemy.ambushTimer--;
+                    if (enemy.ambushTimer <= 0) {
+                        enemy.ambushState = 'charging';
+                        enemy.speed = enemy.originalSpeed * 2;
+                        showAmbushEffect(enemy.x, enemy.y);
+                    }
+                    break;
+                case 'charging':
+                    const target = currentMap.path[enemy.pathIndex + 1];
+                    const dx = target.x - enemy.x;
+                    const dy = target.y - enemy.y;
+                    if (Math.abs(dx) < enemy.speed && Math.abs(dy) < enemy.speed) {
+                        enemy.pathIndex++;
+                        enemy.ambushState = 'hiding';
+                        enemy.speed = enemy.originalSpeed;
+                        enemy.ambushTimer = 60;
+                    } else {
+                        enemy.x += dx * enemy.speed;
+                        enemy.y += dy * enemy.speed;
+                    }
+                    break;
+            }
+            return false;
+        }
+    }
+};
+
+// 매복 효과 표시 함수
+function showAmbushEffect(x, y) {
+    const effect = {
+        x: x * TILE_SIZE + TILE_SIZE / 2,
+        y: y * TILE_SIZE + TILE_SIZE / 2,
+        radius: 0,
+        maxRadius: TILE_SIZE * 2,
+        alpha: 1,
+        duration: 20,
+        currentFrame: 0
+    };
+
+    const animate = () => {
+        if (effect.currentFrame >= effect.duration) return;
+
+        ctx.save();
+        ctx.globalAlpha = effect.alpha * (1 - effect.currentFrame / effect.duration);
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(
+            effect.x,
+            effect.y,
+            effect.radius + (effect.maxRadius - effect.radius) * (effect.currentFrame / effect.duration),
+            0,
+            Math.PI * 2
+        );
+        ctx.stroke();
         ctx.restore();
 
         effect.currentFrame++;
