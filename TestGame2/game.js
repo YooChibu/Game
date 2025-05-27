@@ -1036,6 +1036,40 @@ const sounds = {
 let soundEnabled = true;
 let musicEnabled = true;
 
+// 사운드 설정 저장
+function saveSoundSettings() {
+    const soundSettings = {
+        soundEnabled: soundEnabled,
+        musicEnabled: musicEnabled
+    };
+    localStorage.setItem('towerDefenseSoundSettings', JSON.stringify(soundSettings));
+}
+
+// 사운드 설정 불러오기
+function loadSoundSettings() {
+    const savedSettings = localStorage.getItem('towerDefenseSoundSettings');
+    if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        soundEnabled = settings.soundEnabled;
+        musicEnabled = settings.musicEnabled;
+        
+        // UI 업데이트
+        const soundBtn = document.getElementById('soundToggleBtn');
+        const musicBtn = document.getElementById('musicToggleBtn');
+        
+        soundBtn.classList.toggle('muted', !soundEnabled);
+        musicBtn.classList.toggle('muted', !musicEnabled);
+        
+        // 배경음악 상태 적용
+        if (musicEnabled && gameState.isStarted) {
+            sounds.bgm.loop = true;
+            sounds.bgm.play().catch(error => console.log('BGM 재생 실패:', error));
+        } else {
+            sounds.bgm.pause();
+        }
+    }
+}
+
 function playSound(soundName) {
     if (!soundEnabled) return;
     const sound = sounds[soundName];
@@ -1049,6 +1083,7 @@ function toggleSound() {
     soundEnabled = !soundEnabled;
     const soundBtn = document.getElementById('soundToggleBtn');
     soundBtn.classList.toggle('muted', !soundEnabled);
+    saveSoundSettings(); // 설정 저장
 }
 
 function toggleMusic() {
@@ -1062,6 +1097,7 @@ function toggleMusic() {
     } else {
         sounds.bgm.pause();
     }
+    saveSoundSettings(); // 설정 저장
 }
 
 // 게임 통계
@@ -3547,11 +3583,7 @@ document.head.insertAdjacentHTML('beforeend', `
 
 // 초기 상태 설정
 window.addEventListener('load', () => {
-    const soundBtn = document.getElementById('soundToggleBtn');
-    const musicBtn = document.getElementById('musicToggleBtn');
-    
-    soundBtn.classList.toggle('muted', !soundEnabled);
-    musicBtn.classList.toggle('muted', !musicEnabled);
+    loadSoundSettings(); // 저장된 사운드 설정 불러오기
 });
 
 document.head.insertAdjacentHTML('beforeend', `
