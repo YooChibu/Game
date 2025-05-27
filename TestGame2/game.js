@@ -3594,9 +3594,9 @@ document.head.insertAdjacentHTML('beforeend', `
         .game-controls {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            margin-top: 4px;
-            padding-top: 6px;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
             border-top: 1px solid rgba(76, 175, 80, 0.3);
             width: 100%;
             box-sizing: border-box;
@@ -3621,7 +3621,7 @@ document.head.insertAdjacentHTML('beforeend', `
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
-            margin: 0;
+            margin: 4px 0;
         }
 
         .control-button:hover {
@@ -3679,6 +3679,7 @@ document.head.insertAdjacentHTML('beforeend', `
             width: 100%;
             text-align: center;
             box-sizing: border-box;
+            margin: 4px 0;
         }
 
         .wave-start-button:hover {
