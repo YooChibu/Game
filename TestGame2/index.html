@@ -60,43 +60,45 @@
             
             <!-- 미니맵 -->
             <div class="minimap-container">
-                <canvas id="minimapCanvas" width="200" height="200"></canvas>
+                <canvas id="minimapCanvas" width="150" height="150"></canvas>
                 <div class="game-settings">
-                    <div class="setting-item">
-                        <label for="difficultySelect">난이도:</label>
-                        <select id="difficultySelect">
-                            <option value="EASY">쉬움</option>
-                            <option value="NORMAL" selected>보통</option>
-                            <option value="HARD">어려움</option>
-                        </select>
+                    <div class="settings-row">
+                        <div class="setting-item">
+                            <label for="difficultySelect">난이도</label>
+                            <select id="difficultySelect">
+                                <option value="EASY">쉬움</option>
+                                <option value="NORMAL" selected>보통</option>
+                                <option value="HARD">어려움</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label for="mapSelect">맵</label>
+                            <select id="mapSelect">
+                                <option value="STRAIGHT" selected>직선</option>
+                                <option value="ZIGZAG">지그재그</option>
+                                <option value="SPIRAL">나선형</option>
+                                <option value="MAZE">미로</option>
+                                <option value="CROSS">십자형</option>
+                                <option value="SNAKE">뱀형</option>
+                                <option value="DIAMOND">다이아몬드</option>
+                                <option value="LABYRINTH">맵3</option>
+                                <option value="DOUBLE_SPIRAL">맵4</option>
+                                <option value="PYRAMID">맵5</option>
+                                <option value="WAVE">맵6</option>
+                                <option value="STAIRS">맵7</option>
+                                <option value="CROSSROADS">맵8</option>
+                                <option value="INFINITY">맵9</option>
+                                <option value="BUTTERFLY">맵10</option>
+                                <option value="HOURGLASS">맵11</option>
+                                <option value="STAR">별형</option>
+                                <option value="VORTEX">소용돌이</option>
+                                <option value="MAZE2">맵14</option>
+                                <option value="SNAKE2">맵15</option>
+                                <option value="TRIANGLE">맵12</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="setting-item">
-                        <label for="mapSelect">맵 선택:</label>
-                        <select id="mapSelect">
-                            <option value="STRAIGHT" selected>직선 경로</option>
-                            <option value="ZIGZAG">지그재그</option>
-                            <option value="SPIRAL">나선형</option>
-                            <option value="MAZE">미로</option>
-                            <option value="CROSS">십자형</option>
-                            <option value="SNAKE">뱀형</option>
-                            <option value="DIAMOND">다이아몬드</option>
-                            <option value="LABYRINTH">맵3</option>
-                            <option value="DOUBLE_SPIRAL">맵4</option>
-                            <option value="PYRAMID">맵5</option>
-                            <option value="WAVE">맵6</option>
-                            <option value="STAIRS">맵7</option>
-                            <option value="CROSSROADS">맵8</option>
-                            <option value="INFINITY">맵9</option>
-                            <option value="BUTTERFLY">맵10</option>
-                            <option value="HOURGLASS">맵11</option>
-                            <option value="STAR">별형</option>
-                            <option value="VORTEX">소용돌이</option>
-                            <option value="MAZE2">맵14</option>
-                            <option value="SNAKE2">맵15</option>
-                            <option value="TRIANGLE">맵12</option>
-                        </select>
-                    </div>
-                    <button id="waveStartButton" class="wave-start-button">다음 웨이브</button>
+                    <button id="waveStartButton" class="wave-start-button" style="display: none;">다음 웨이브</button>
                     <div class="sound-controls">
                         <button id="soundToggleBtn" class="sound-button">
                             <span class="sound-icon">🔊</span>

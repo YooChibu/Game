@@ -3382,47 +3382,56 @@ document.head.insertAdjacentHTML('beforeend', `
             top: 20px;
             right: 20px;
             background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
+            padding: 10px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 8px;
+            width: 170px;
         }
 
         #minimapCanvas {
             border: 2px solid #4CAF50;
             border-radius: 4px;
             background: rgba(0, 0, 0, 0.5);
+            width: 150px;
+            height: 150px;
         }
 
         /* 게임 설정 스타일 */
         .game-settings {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
         }
 
+        .settings-row {
+            display: flex;
+            gap: 8px;
+        }
+
         .setting-item {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
         }
 
         .setting-item label {
             color: #4CAF50;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
         }
 
         .setting-item select {
-            padding: 8px;
+            padding: 4px;
             border-radius: 4px;
             border: 1px solid #4CAF50;
             background: rgba(0, 0, 0, 0.7);
             color: white;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -3440,13 +3449,12 @@ document.head.insertAdjacentHTML('beforeend', `
 
         /* 다음 웨이브 버튼 스타일 */
         .wave-start-button {
-            margin-top: 10px;
-            padding: 12px;
+            padding: 8px;
             background: linear-gradient(to bottom, #4CAF50, #45a049);
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
+            border-radius: 4px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -3465,55 +3473,23 @@ document.head.insertAdjacentHTML('beforeend', `
             box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
         }
 
-        /* 모바일 최적화 */
-        @media (max-width: 768px) {
-            .minimap-container {
-                position: relative;
-                top: 0;
-                right: 0;
-                margin: 15px auto;
-                width: 90%;
-                max-width: 300px;
-            }
-
-            .game-settings {
-                flex-direction: column;
-            }
-
-            .setting-item {
-                width: 100%;
-            }
-
-            .wave-start-button {
-                font-size: 14px;
-                padding: 10px;
-            }
-        }
-    </style>
-`);
-
-document.head.insertAdjacentHTML('beforeend', `
-    <style>
-        /* 기존 스타일 유지 */
-        // ... existing code ...
-
         /* 사운드 컨트롤 스타일 */
         .sound-controls {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin-top: 10px;
-            padding-top: 10px;
+            gap: 6px;
+            margin-top: 4px;
+            padding-top: 6px;
             border-top: 1px solid rgba(76, 175, 80, 0.3);
         }
 
         .sound-button {
             display: flex;
             align-items: center;
-            padding: 8px 12px;
+            padding: 6px 8px;
             background: rgba(0, 0, 0, 0.6);
             border: 1px solid #4CAF50;
-            border-radius: 6px;
+            border-radius: 4px;
             color: white;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -3526,23 +3502,23 @@ document.head.insertAdjacentHTML('beforeend', `
         }
 
         .sound-icon {
-            font-size: 18px;
-            margin-right: 8px;
-            width: 24px;
+            font-size: 14px;
+            margin-right: 6px;
+            width: 20px;
             text-align: center;
         }
 
         .sound-label {
             flex-grow: 1;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
         }
 
         .sound-status {
-            font-size: 12px;
-            padding: 2px 6px;
+            font-size: 10px;
+            padding: 1px 4px;
             background: rgba(76, 175, 80, 0.2);
-            border-radius: 4px;
+            border-radius: 3px;
             color: #4CAF50;
         }
 
@@ -3561,24 +3537,40 @@ document.head.insertAdjacentHTML('beforeend', `
 
         /* 모바일 최적화 */
         @media (max-width: 768px) {
-            // ... existing code ...
+            .minimap-container {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 10px auto;
+                width: 90%;
+                max-width: 170px;
+            }
+
+            .settings-row {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .setting-item {
+                width: 100%;
+            }
 
             .sound-button {
-                padding: 6px 10px;
+                padding: 4px 6px;
             }
 
             .sound-icon {
-                font-size: 16px;
-                margin-right: 6px;
+                font-size: 12px;
+                margin-right: 4px;
             }
 
             .sound-label {
-                font-size: 12px;
+                font-size: 10px;
             }
 
             .sound-status {
-                font-size: 10px;
-                padding: 1px 4px;
+                font-size: 8px;
+                padding: 1px 3px;
             }
         }
     </style>
