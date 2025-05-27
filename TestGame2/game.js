@@ -1824,6 +1824,11 @@ class Enemy {
             this.skillCooldown = this.skill.cooldown;
         }
 
+        // 그룹 버프 적용
+        applyGroupBuffs();
+        if (this.groupSpeedBuff) this.speed = this.baseSpeed * this.groupSpeedBuff;
+        if (this.groupDefenseBuff) this.defense = 10 * this.groupDefenseBuff; // 예시: 방어력 10 기준
+
         return false;
     }
 
@@ -4670,6 +4675,37 @@ const ENEMY_PATTERNS = {
             }
             return false;
         }
+    },
+    // ... existing code ...
+    GROUP_RUSH: {
+        name: '집단 돌진',
+        description: '그룹 신호에 맞춰 동시에 돌진',
+        update: function(enemy) {
+            if (enemy.pathIndex >= currentMap.path.length - 1) {
+                gameState.lives--;
+                return true;
+            }
+            // 그룹 신호: 그룹 전체가 일정 거리 이하로 모이면 돌진
+            const group = enemyGroups.find(g => g.id === enemy.groupId);
+            let rush = false;
+            if (group) {
+                const alive = group.members.filter(e => e.health > 0);
+                // 그룹 내 적이 모두 가까이 모이면 돌진
+                const close = alive.every(e => Math.abs(e.x - enemy.x) < 1 && Math.abs(e.y - enemy.y) < 1);
+                if (close) rush = true;
+            }
+            const target = currentMap.path[enemy.pathIndex + 1];
+            const dx = target.x - enemy.x;
+            const dy = target.y - enemy.y;
+            const speed = rush ? enemy.speed * 2 : enemy.speed;
+            if (Math.abs(dx) < speed && Math.abs(dy) < speed) {
+                enemy.pathIndex++;
+            } else {
+                enemy.x += dx * speed;
+                enemy.y += dy * speed;
+            }
+            return false;
+        }
     }
 };
 
@@ -4800,3 +4836,18 @@ class EnemyGroup {
 // 그룹 관리 배열
 let enemyGroups = [];
 let groupIdCounter = 1;
+
+// 그룹 버프/효과 적용 함수
+function applyGroupBuffs() {
+    enemyGroups.forEach(group => {
+        const alive = group.members.filter(e => e.health > 0);
+        // 모두 살아있으면 속도 20% 증가
+        alive.forEach(e => {
+            e.groupSpeedBuff = (alive.length === group.members.length) ? 1.2 : 1.0;
+        });
+        // 1마리만 남으면 방어력 50% 증가
+        alive.forEach(e => {
+            e.groupDefenseBuff = (alive.length === 1) ? 1.5 : 1.0;
+        });
+    });
+}
