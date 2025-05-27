@@ -3584,3 +3584,110 @@ window.addEventListener('load', () => {
     soundBtn.classList.toggle('muted', !soundEnabled);
     musicBtn.classList.toggle('muted', !musicEnabled);
 });
+
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        /* 기존 스타일 유지 */
+        // ... existing code ...
+
+        /* 게임 컨트롤 스타일 */
+        .game-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 4px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .control-button {
+            padding: 4px 6px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+            height: 24px;
+            line-height: 16px;
+        }
+
+        .control-button:hover {
+            background: rgba(0, 0, 0, 0.8);
+            border-color: #45a049;
+            transform: translateY(-1px);
+        }
+
+        .control-button:active {
+            transform: translateY(0);
+        }
+
+        #startBtn {
+            background: linear-gradient(to bottom, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        #startBtn:hover {
+            background: linear-gradient(to bottom, #45a049, #3d8b40);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        #pauseBtn {
+            background: linear-gradient(to bottom, #ff9800, #f57c00);
+            border: none;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        #pauseBtn:hover {
+            background: linear-gradient(to bottom, #f57c00, #ef6c00);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 다음 웨이브 버튼 스타일 수정 */
+        .wave-start-button {
+            padding: 6px 8px;
+            background: linear-gradient(to bottom, #2196F3, #1976D2);
+            border: none;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            height: 28px;
+            line-height: 16px;
+        }
+
+        .wave-start-button:hover {
+            background: linear-gradient(to bottom, #1976D2, #1565C0);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 768px) {
+            // ... existing code ...
+
+            .control-button {
+                padding: 3px 5px;
+                font-size: 10px;
+                height: 22px;
+                line-height: 14px;
+            }
+
+            .wave-start-button {
+                padding: 4px 6px;
+                font-size: 11px;
+                height: 26px;
+                line-height: 14px;
+            }
+        }
+    </style>
+`);
