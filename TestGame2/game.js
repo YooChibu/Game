@@ -3436,6 +3436,33 @@ document.head.insertAdjacentHTML('beforeend', `
             box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
         }
 
+        /* 다음 웨이브 버튼 스타일 */
+        .wave-start-button {
+            margin-top: 10px;
+            padding: 12px;
+            background: linear-gradient(to bottom, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .wave-start-button:hover {
+            background: linear-gradient(to bottom, #45a049, #3d8b40);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .wave-start-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+        }
+
         /* 모바일 최적화 */
         @media (max-width: 768px) {
             .minimap-container {
@@ -3453,6 +3480,11 @@ document.head.insertAdjacentHTML('beforeend', `
 
             .setting-item {
                 width: 100%;
+            }
+
+            .wave-start-button {
+                font-size: 14px;
+                padding: 10px;
             }
         }
     </style>
