@@ -60,7 +60,43 @@
             
             <!-- 미니맵 -->
             <div class="minimap-container">
-                <canvas id="minimapCanvas" width="200" height="150"></canvas>
+                <canvas id="minimapCanvas" width="200" height="200"></canvas>
+                <div class="game-settings">
+                    <div class="setting-item">
+                        <label for="difficultySelect">난이도:</label>
+                        <select id="difficultySelect">
+                            <option value="EASY">쉬움</option>
+                            <option value="NORMAL" selected>보통</option>
+                            <option value="HARD">어려움</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="mapSelect">맵 선택:</label>
+                        <select id="mapSelect">
+                            <option value="STRAIGHT" selected>직선 경로</option>
+                            <option value="ZIGZAG">지그재그</option>
+                            <option value="SPIRAL">나선형</option>
+                            <option value="MAZE">미로</option>
+                            <option value="CROSS">십자형</option>
+                            <option value="SNAKE">뱀형</option>
+                            <option value="DIAMOND">다이아몬드</option>
+                            <option value="LABYRINTH">맵3</option>
+                            <option value="DOUBLE_SPIRAL">맵4</option>
+                            <option value="PYRAMID">맵5</option>
+                            <option value="WAVE">맵6</option>
+                            <option value="STAIRS">맵7</option>
+                            <option value="CROSSROADS">맵8</option>
+                            <option value="INFINITY">맵9</option>
+                            <option value="BUTTERFLY">맵10</option>
+                            <option value="HOURGLASS">맵11</option>
+                            <option value="STAR">별형</option>
+                            <option value="VORTEX">소용돌이</option>
+                            <option value="MAZE2">맵14</option>
+                            <option value="SNAKE2">맵15</option>
+                            <option value="TRIANGLE">맵12</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <!-- 웨이브 진행 바 -->
@@ -84,20 +120,6 @@
 
         <!-- 게임 설정 -->
         <div class="game-settings">
-            <select id="difficultySelect" class="control-button">
-                <option value="EASY">쉬움</option>
-                <option value="NORMAL" selected>보통</option>
-                <option value="HARD">어려움</option>
-            </select>
-            <select id="mapSelect" class="control-button">
-                <option value="STRAIGHT">직선 경로</option>
-                <option value="ZIGZAG">지그재그</option>
-                <option value="SPIRAL">나선형</option>
-                <option value="MAZE">미로</option>
-                <option value="CROSS">십자형</option>
-                <option value="SNAKE">뱀형</option>
-                <option value="DIAMOND">다이아몬드</option>
-            </select>
             <button id="soundToggleBtn" class="control-button">🔊 효과음</button>
             <button id="musicToggleBtn" class="control-button">🎵 배경음악</button>
         </div>

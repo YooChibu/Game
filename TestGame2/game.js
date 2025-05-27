@@ -3371,3 +3371,89 @@ document.getElementById('musicToggleBtn').addEventListener('click', function() {
     this.classList.toggle('muted');
     this.textContent = musicEnabled ? '🎵 배경음악' : '🎵 배경음악';
 });
+
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        /* 미니맵 컨테이너 스타일 수정 */
+        .minimap-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #minimapCanvas {
+            border: 2px solid #4CAF50;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* 게임 설정 스타일 */
+        .game-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .setting-item label {
+            color: #4CAF50;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .setting-item select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #4CAF50;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .setting-item select:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #45a049;
+        }
+
+        .setting-item select:focus {
+            outline: none;
+            border-color: #45a049;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 768px) {
+            .minimap-container {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 15px auto;
+                width: 90%;
+                max-width: 300px;
+            }
+
+            .game-settings {
+                flex-direction: column;
+            }
+
+            .setting-item {
+                width: 100%;
+            }
+        }
+    </style>
+`);
