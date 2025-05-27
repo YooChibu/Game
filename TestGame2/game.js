@@ -2,6 +2,18 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// 게임 상수
+const TILE_SIZE = 40;
+const ENEMY_LEVEL_SETTINGS = {
+    maxLevel: 10,
+    healthMultiplier: 1.2, // 레벨당 체력 증가율
+    speedMultiplier: 1.05, // 레벨당 속도 증가율
+    rewardMultiplier: 1.15, // 레벨당 보상 증가율
+    experienceMultiplier: 1.1, // 레벨당 경험치 증가율
+    levelUpChance: 0.1, // 적이 레벨업할 확률
+    maxLevelUpPerWave: 2 // 웨이브당 최대 레벨업 횟수
+};
+
 // 게임 상태
 const gameState = {
     gold: 100,
@@ -57,7 +69,6 @@ const DIFFICULTY_SETTINGS = {
 };
 
 // 타일 크기 설정
-const TILE_SIZE = 40;
 const GRID_WIDTH = canvas.width / TILE_SIZE;
 const GRID_HEIGHT = canvas.height / TILE_SIZE;
 
@@ -1512,50 +1523,181 @@ class Enemy {
         this.pathIndex = 0;
         this.x = currentMap.path[0].x;
         this.y = currentMap.path[0].y;
-        this.baseSpeed = 0.02 + (wave * 0.005);
-        this.speed = this.baseSpeed * DIFFICULTY_SETTINGS[gameState.difficulty].enemySpeed;
-        this.health = (100 + (wave * 20)) * DIFFICULTY_SETTINGS[gameState.difficulty].enemyHealth;
-        this.maxHealth = this.health;
-        this.reward = Math.floor((10 + (wave * 2)) * DIFFICULTY_SETTINGS[gameState.difficulty].goldReward);
-        this.isBoss = isBoss;
-        this.continuousDamage = 0;
-        this.experienceValue = isBoss ? 50 : 10;
-        this.defense = 0;
-        this.isInvincible = false;
-        this.patternCooldown = 0;
         
-        if (isBoss) {
+        // 레벨 시스템 초기화
+        this.level = this.calculateInitialLevel(wave);
+        this.levelUpCount = 0;
+        
+        // 적 유형 선택
+        if (!isBoss) {
+            const enemyTypes = Object.keys(ENEMY_TYPES);
+            const randomType = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+            const enemyType = ENEMY_TYPES[randomType];
+            
+            this.type = randomType;
+            this.name = `${enemyType.name} Lv.${this.level}`;
+            this.baseSpeed = enemyType.speed;
+            this.speed = this.calculateLeveledSpeed(this.baseSpeed);
+            this.health = this.calculateLeveledHealth(enemyType.health * (1 + (wave * 0.1)));
+            this.maxHealth = this.health;
+            this.reward = Math.floor(this.calculateLeveledReward(enemyType.reward * (1 + (wave * 0.1))));
+            this.color = enemyType.color;
+            this.experienceValue = Math.floor(this.calculateLeveledExperience(enemyType.experienceValue));
+        } else {
             const bossType = Object.keys(BOSS_TYPES)[Math.floor(Math.random() * Object.keys(BOSS_TYPES).length)];
             const boss = BOSS_TYPES[bossType];
-            this.health = boss.health;
-            this.maxHealth = boss.health;
-            this.speed = boss.speed;
-            this.reward = boss.reward;
+            this.type = 'BOSS';
+            this.name = `${boss.name} Lv.${this.level}`;
+            this.health = this.calculateLeveledHealth(boss.health);
+            this.maxHealth = this.health;
+            this.speed = this.calculateLeveledSpeed(boss.speed);
+            this.reward = Math.floor(this.calculateLeveledReward(boss.reward));
             this.color = boss.color;
             this.ability = boss.ability;
             this.abilityCooldown = 0;
-            gameState.bossKilled = false;
             this.pattern = BOSS_PATTERNS[bossType];
+            gameState.bossKilled = false;
             playSound('bossSpawn');
+        }
+
+        // 상태 효과 관련 속성
+        this.statusEffects = new Map();
+        this.continuousDamage = 0;
+        this.defense = 0;
+        this.isInvincible = false;
+        this.patternCooldown = 0;
+        this.healCooldown = 0;
+    }
+
+    calculateInitialLevel(wave) {
+        // 웨이브에 따라 초기 레벨 계산
+        const baseLevel = Math.floor(wave / 2);
+        const randomBonus = Math.random() < 0.3 ? 1 : 0; // 30% 확률로 추가 레벨
+        return Math.min(baseLevel + randomBonus, ENEMY_LEVEL_SETTINGS.maxLevel);
+    }
+
+    calculateLeveledHealth(baseHealth) {
+        return Math.floor(baseHealth * Math.pow(ENEMY_LEVEL_SETTINGS.healthMultiplier, this.level - 1));
+    }
+
+    calculateLeveledSpeed(baseSpeed) {
+        return baseSpeed * Math.pow(ENEMY_LEVEL_SETTINGS.speedMultiplier, this.level - 1);
+    }
+
+    calculateLeveledReward(baseReward) {
+        return baseReward * Math.pow(ENEMY_LEVEL_SETTINGS.rewardMultiplier, this.level - 1);
+    }
+
+    calculateLeveledExperience(baseExperience) {
+        return baseExperience * Math.pow(ENEMY_LEVEL_SETTINGS.experienceMultiplier, this.level - 1);
+    }
+
+    tryLevelUp() {
+        if (this.level < ENEMY_LEVEL_SETTINGS.maxLevel && 
+            this.levelUpCount < ENEMY_LEVEL_SETTINGS.maxLevelUpPerWave &&
+            Math.random() < ENEMY_LEVEL_SETTINGS.levelUpChance) {
+            
+            this.level++;
+            this.levelUpCount++;
+            this.name = `${this.name.split(' Lv.')[0]} Lv.${this.level}`;
+            
+            // 레벨업에 따른 능력치 재계산
+            this.health = this.calculateLeveledHealth(this.maxHealth);
+            this.maxHealth = this.health;
+            this.speed = this.calculateLeveledSpeed(this.baseSpeed);
+            this.reward = Math.floor(this.calculateLeveledReward(this.reward));
+            this.experienceValue = Math.floor(this.calculateLeveledExperience(this.experienceValue));
+            
+            // 레벨업 효과 표시
+            showLevelUpEffect(this.x, this.y);
+            return true;
+        }
+        return false;
+    }
+
+    applyStatusEffect(effectType, duration) {
+        const effect = STATUS_EFFECTS[effectType];
+        if (!effect) return;
+
+        this.statusEffects.set(effectType, {
+            duration: duration || effect.duration,
+            remaining: duration || effect.duration
+        });
+
+        // 효과 적용
+        switch(effectType) {
+            case 'FROZEN':
+                this.speed *= effect.speedMultiplier;
+                break;
+            case 'POISON':
+            case 'BURNING':
+                this.continuousDamage += effect.damagePerTick;
+                break;
         }
     }
 
+    updateStatusEffects() {
+        for (const [effectType, effect] of this.statusEffects) {
+            effect.remaining--;
+            
+            if (effect.remaining <= 0) {
+                // 효과 제거
+                switch(effectType) {
+                    case 'FROZEN':
+                        this.speed = this.baseSpeed;
+                        break;
+                    case 'POISON':
+                    case 'BURNING':
+                        this.continuousDamage -= STATUS_EFFECTS[effectType].damagePerTick;
+                        break;
+                }
+                this.statusEffects.delete(effectType);
+            }
+        }
+    }
+
+    healNearbyEnemies() {
+        if (this.type === 'HEALER' && this.healCooldown <= 0) {
+            enemies.forEach(enemy => {
+                if (enemy !== this) {
+                    const dx = (enemy.x - this.x) * TILE_SIZE;
+                    const dy = (enemy.y - this.y) * TILE_SIZE;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance <= ENEMY_TYPES.HEALER.healRange * TILE_SIZE) {
+                        enemy.health = Math.min(enemy.maxHealth, enemy.health + ENEMY_TYPES.HEALER.healAmount);
+                        showHealEffect(enemy.x, enemy.y);
+                    }
+                }
+            });
+            this.healCooldown = 60; // 1초 쿨다운
+        }
+        if (this.healCooldown > 0) this.healCooldown--;
+    }
+
     update() {
-        // 지속 데미지 적용 (매 프레임마다)
+        // 상태 효과 업데이트
+        this.updateStatusEffects();
+        
+        // 레벨업 시도
+        this.tryLevelUp();
+        
+        // 지속 데미지 적용
         if (this.continuousDamage > 0) {
             const damage = Math.floor(this.continuousDamage);
             this.health -= damage;
-            this.continuousDamage = Math.max(0, this.continuousDamage * 0.95); // 지속 데미지가 서서히 감소
+            this.continuousDamage = Math.max(0, this.continuousDamage * 0.95);
         }
 
+        // 경로 종료 체크
         if (this.pathIndex >= currentMap.path.length - 1) {
             gameState.lives--;
             return true;
         }
 
+        // 사망 체크
         if (this.health <= 0) {
             if (!this.isInvincible) {
-                // 경험치 획득
                 gainExperience(this.experienceValue);
                 
                 // 타워 경험치 획득
@@ -1572,7 +1714,7 @@ class Enemy {
                 gameState.gold += this.reward * (gameState.goldMultiplier || 1);
                 gameStats.totalGold += this.reward * (gameState.goldMultiplier || 1);
                 gameStats.enemiesKilled++;
-                if (this.isBoss) {
+                if (this.type === 'BOSS') {
                     gameStats.bossesKilled++;
                     gameState.bossKilled = true;
                 }
@@ -1582,14 +1724,18 @@ class Enemy {
             return true;
         }
 
-        // 보스 능력 사용
-        if (this.isBoss && this.patternCooldown <= 0) {
+        // 치유사 능력 사용
+        this.healNearbyEnemies();
+
+        // 보스 패턴 사용
+        if (this.type === 'BOSS' && this.patternCooldown <= 0) {
             this.pattern.effect(this);
             this.patternCooldown = this.pattern.cooldown;
             showBossPatternEffect(this.x, this.y, this.pattern.name);
         }
         if (this.patternCooldown > 0) this.patternCooldown--;
 
+        // 이동
         const targetX = currentMap.path[this.pathIndex + 1].x;
         const targetY = currentMap.path[this.pathIndex + 1].y;
         
@@ -1607,12 +1753,23 @@ class Enemy {
     }
 
     draw() {
-        ctx.fillStyle = this.isBoss ? this.color : 'red';
+        // 적 기본 모양
+        ctx.fillStyle = this.color;
         ctx.fillRect(
             this.x * TILE_SIZE + 5,
             this.y * TILE_SIZE + 5,
             TILE_SIZE - 10,
             TILE_SIZE - 10
+        );
+
+        // 레벨 표시
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 10px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(
+            `Lv.${this.level}`,
+            this.x * TILE_SIZE + TILE_SIZE / 2,
+            this.y * TILE_SIZE + TILE_SIZE / 2
         );
 
         // 체력바
@@ -1636,16 +1793,28 @@ class Enemy {
             healthBarHeight
         );
 
-        // 보스 이름 표시
-        if (this.isBoss) {
-            ctx.fillStyle = 'white';
-            ctx.font = '12px Arial';
-            ctx.fillText(
-                BOSS_TYPES[Object.keys(BOSS_TYPES).find(key => BOSS_TYPES[key].color === this.color)].name,
-                this.x * TILE_SIZE,
-                this.y * TILE_SIZE - 5
+        // 상태 효과 표시
+        let effectY = this.y * TILE_SIZE - 15;
+        for (const [effectType, effect] of this.statusEffects) {
+            const statusEffect = STATUS_EFFECTS[effectType];
+            ctx.fillStyle = statusEffect.color;
+            ctx.fillRect(
+                this.x * TILE_SIZE + 5,
+                effectY,
+                (TILE_SIZE - 10) * (effect.remaining / effect.duration),
+                3
             );
+            effectY -= 5;
         }
+
+        // 이름 표시
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.fillText(
+            this.name,
+            this.x * TILE_SIZE,
+            this.y * TILE_SIZE - 5
+        );
     }
 }
 
@@ -4187,3 +4356,98 @@ document.head.insertAdjacentHTML('beforeend', `
         }
     </style>
 `);
+
+// 적 유형 정의
+const ENEMY_TYPES = {
+    NORMAL: {
+        name: '일반 적',
+        health: 100,
+        speed: 0.02,
+        reward: 10,
+        color: 'red',
+        experienceValue: 10
+    },
+    FAST: {
+        name: '빠른 적',
+        health: 50,
+        speed: 0.04,
+        reward: 15,
+        color: 'yellow',
+        experienceValue: 15
+    },
+    TANK: {
+        name: '탱커',
+        health: 300,
+        speed: 0.01,
+        reward: 20,
+        color: 'purple',
+        experienceValue: 20
+    },
+    HEALER: {
+        name: '치유사',
+        health: 80,
+        speed: 0.015,
+        reward: 25,
+        color: 'green',
+        experienceValue: 25,
+        healAmount: 10,
+        healRange: 2
+    }
+};
+
+// 상태 효과 정의
+const STATUS_EFFECTS = {
+    POISON: {
+        name: '독',
+        duration: 5,
+        damagePerTick: 2,
+        color: 'green'
+    },
+    FROZEN: {
+        name: '빙결',
+        duration: 3,
+        speedMultiplier: 0.5,
+        color: 'blue'
+    },
+    BURNING: {
+        name: '화상',
+        duration: 4,
+        damagePerTick: 3,
+        color: 'orange'
+    }
+};
+
+function showHealEffect(x, y) {
+    const effect = {
+        x: x * TILE_SIZE + TILE_SIZE / 2,
+        y: y * TILE_SIZE + TILE_SIZE / 2,
+        radius: 0,
+        maxRadius: TILE_SIZE,
+        alpha: 1,
+        duration: 30, // 0.5초
+        currentFrame: 0
+    };
+
+    const animate = () => {
+        if (effect.currentFrame >= effect.duration) return;
+
+        ctx.save();
+        ctx.globalAlpha = effect.alpha * (1 - effect.currentFrame / effect.duration);
+        ctx.fillStyle = '#00ff00';
+        ctx.beginPath();
+        ctx.arc(
+            effect.x,
+            effect.y,
+            effect.radius + (effect.maxRadius - effect.radius) * (effect.currentFrame / effect.duration),
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+        ctx.restore();
+
+        effect.currentFrame++;
+        requestAnimationFrame(animate);
+    };
+
+    animate();
+}
