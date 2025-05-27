@@ -3598,6 +3598,10 @@ document.head.insertAdjacentHTML('beforeend', `
             margin-top: 4px;
             padding-top: 6px;
             border-top: 1px solid rgba(76, 175, 80, 0.3);
+            width: 100%;
+            box-sizing: border-box;
+            padding-left: 0;
+            padding-right: 0;
         }
 
         .control-button {
@@ -3616,6 +3620,8 @@ document.head.insertAdjacentHTML('beforeend', `
             display: flex;
             align-items: center;
             justify-content: center;
+            box-sizing: border-box;
+            margin: 0;
         }
 
         .control-button:hover {
@@ -3654,7 +3660,7 @@ document.head.insertAdjacentHTML('beforeend', `
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
-        /* 다음 웨이브 버튼 스타일 수정 */
+        /* 다음 웨이브 버튼 스타일 */
         .wave-start-button {
             padding: 0 8px;
             background: linear-gradient(to bottom, #2196F3, #1976D2);
@@ -3672,6 +3678,7 @@ document.head.insertAdjacentHTML('beforeend', `
             transition: all 0.3s ease;
             width: 100%;
             text-align: center;
+            box-sizing: border-box;
         }
 
         .wave-start-button:hover {
@@ -3685,20 +3692,55 @@ document.head.insertAdjacentHTML('beforeend', `
             box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
         }
 
+        /* 게임 설정 컨테이너 스타일 */
+        .game-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        /* 미니맵 컨테이너 스타일 수정 */
+        .minimap-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 170px;
+            box-sizing: border-box;
+        }
+
         /* 모바일 최적화 */
         @media (max-width: 768px) {
-            // ... existing code ...
-
-            .control-button {
-                padding: 3px 5px;
-                font-size: 10px;
-                height: 22px;
+            .minimap-container {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 10px auto;
+                width: 90%;
+                max-width: 170px;
+                padding: 8px;
             }
 
-            .wave-start-button {
-                padding: 0 6px;
-                font-size: 12px;
-                height: 40px;
+            .game-settings {
+                width: 100%;
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .game-controls {
+                width: 100%;
+                padding-left: 0;
+                padding-right: 0;
             }
         }
     </style>
