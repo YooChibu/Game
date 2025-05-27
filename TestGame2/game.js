@@ -1801,12 +1801,20 @@ function updateInfoBar() {
 function updateWaveProgress() {
     const progress = document.getElementById('waveProgress');
     const fill = progress.querySelector('.fill');
+    let text = progress.querySelector('.progress-text');
     const total = gameState.enemiesRemaining + enemies.length;
     const remaining = gameState.enemiesRemaining;
-    const percentage = ((total - remaining) / total) * 100;
-    
+    const percentage = total > 0 ? ((total - remaining) / total) * 100 : 0;
     fill.style.width = `${percentage}%`;
     progress.style.display = gameState.waveInProgress ? 'block' : 'none';
+
+    // 진행률 텍스트 동적 추가/갱신
+    if (!text) {
+        text = document.createElement('span');
+        text.className = 'progress-text';
+        progress.appendChild(text);
+    }
+    text.textContent = `${Math.round(percentage)}%`;
 }
 
 // 보상 팝업 표시
@@ -3188,17 +3196,41 @@ document.head.insertAdjacentHTML('beforeend', `
         /* 웨이브 진행 바 스타일 */
         .wave-progress {
             width: 100%;
-            height: 20px;
-            background: #333;
-            border-radius: 10px;
+            height: 16px;
+            background: linear-gradient(90deg, #232526 0%, #414345 100%);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
             overflow: hidden;
-            margin-top: 15px;
+            margin: 10px 0 18px 0;
+            position: relative;
+            border: 1px solid #2196F3;
         }
-
         .wave-progress .fill {
             height: 100%;
-            background: #4CAF50;
-            transition: width 0.3s ease;
+            background: linear-gradient(90deg, #4CAF50 0%, #2196F3 100%);
+            border-radius: 8px 0 0 8px;
+            transition: width 0.5s cubic-bezier(.4,2,.6,1);
+            box-shadow: 0 0 8px #2196F355;
+        }
+        .wave-progress .progress-text {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-weight: bold;
+            font-size: 11px;
+            text-shadow: 1px 1px 2px #0008;
+            pointer-events: none;
+        }
+        @media (max-width: 768px) {
+            .wave-progress {
+                height: 12px;
+                border-radius: 6px;
+            }
+            .wave-progress .progress-text {
+                font-size: 9px;
+            }
         }
 
         /* 알림 메시지 스타일 */
