@@ -1834,13 +1834,89 @@ class Enemy {
 
     draw() {
         // 적 기본 모양
-        ctx.fillStyle = this.color;
+        ctx.save();
+        let baseColor = this.color;
+        // 상태이상별 색상 오버레이
+        if (this.statusEffects.has('POISON')) {
+            baseColor = 'limegreen';
+            // 독 파티클
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.arc(
+                this.x * TILE_SIZE + TILE_SIZE / 2 + Math.sin(Date.now()/100)*6,
+                this.y * TILE_SIZE + TILE_SIZE / 2 + Math.cos(Date.now()/120)*6,
+                8 + Math.sin(Date.now()/200)*2,
+                0, Math.PI * 2
+            );
+            ctx.fillStyle = 'rgba(0,255,0,0.2)';
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+        }
+        if (this.statusEffects.has('FROZEN')) {
+            baseColor = 'deepskyblue';
+            // 빙결 오라
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.arc(
+                this.x * TILE_SIZE + TILE_SIZE / 2,
+                this.y * TILE_SIZE + TILE_SIZE / 2,
+                TILE_SIZE/2 + Math.sin(Date.now()/150)*2,
+                0, Math.PI * 2
+            );
+            ctx.fillStyle = 'rgba(0,200,255,0.18)';
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+        }
+        if (this.statusEffects.has('BURNING')) {
+            baseColor = 'orangered';
+            // 화상 불꽃
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.arc(
+                this.x * TILE_SIZE + TILE_SIZE / 2 + Math.sin(Date.now()/80)*4,
+                this.y * TILE_SIZE + TILE_SIZE / 2 - 8 + Math.cos(Date.now()/60)*2,
+                7 + Math.sin(Date.now()/100)*2,
+                0, Math.PI * 2
+            );
+            ctx.fillStyle = 'rgba(255,80,0,0.18)';
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+        }
+        ctx.fillStyle = baseColor;
         ctx.fillRect(
             this.x * TILE_SIZE + 5,
             this.y * TILE_SIZE + 5,
             TILE_SIZE - 10,
             TILE_SIZE - 10
         );
+        // 방어막(무적) 오라
+        if (this.isInvincible) {
+            ctx.save();
+            ctx.globalAlpha = 0.6;
+            ctx.beginPath();
+            ctx.arc(
+                this.x * TILE_SIZE + TILE_SIZE / 2,
+                this.y * TILE_SIZE + TILE_SIZE / 2,
+                TILE_SIZE/2 + 6 + Math.sin(Date.now()/120)*2,
+                0, Math.PI * 2
+            );
+            ctx.strokeStyle = '#00eaff';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.restore();
+        }
+        // 그룹 색상 테두리
+        if (this.groupColor) {
+            ctx.strokeStyle = this.groupColor;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(
+                this.x * TILE_SIZE + 5,
+                this.y * TILE_SIZE + 5,
+                TILE_SIZE - 10,
+                TILE_SIZE - 10
+            );
+        }
+        ctx.restore();
 
         // 레벨 표시
         ctx.fillStyle = 'white';
