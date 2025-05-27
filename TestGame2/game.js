@@ -1734,7 +1734,13 @@ document.getElementById('startBtn').addEventListener('click', () => {
         gameState.isStarted = true;
         document.getElementById('startBtn').textContent = '재시작';
         document.getElementById('tutorial').style.display = 'none';
-        document.getElementById('waveStartButton').style.display = 'block'; // 게임 시작 시 버튼 표시
+        document.getElementById('waveStartButton').style.display = 'block';
+        
+        // 게임 시작 시 배경음악 재생
+        if (musicEnabled) {
+            sounds.bgm.loop = true;
+            sounds.bgm.play().catch(error => console.log('BGM 재생 실패:', error));
+        }
     } else {
         restartGame();
     }
@@ -2550,9 +2556,8 @@ window.addEventListener('load', () => {
     setTimeout(() => {
         document.getElementById('loadingScreen').style.display = 'none';
         updateTowerLimit();
-        document.getElementById('waveStartButton').style.display = 'none'; // 초기에는 버튼 숨김
+        document.getElementById('waveStartButton').style.display = 'none';
         
-        // 다음웨이브 버튼 클릭 이벤트 추가
         document.getElementById('waveStartButton').addEventListener('click', () => {
             if (!gameState.waveInProgress && !gameState.isGameOver && !isCountdownActive && gameState.isStarted) {
                 showCountdown();
@@ -3365,12 +3370,4 @@ document.getElementById('musicToggleBtn').addEventListener('click', function() {
     toggleMusic();
     this.classList.toggle('muted');
     this.textContent = musicEnabled ? '🎵 배경음악' : '🎵 배경음악';
-});
-
-// 게임 시작 시 배경음악 자동 재생
-window.addEventListener('load', function() {
-    if (musicEnabled) {
-        sounds.bgm.loop = true;
-        sounds.bgm.play().catch(error => console.log('BGM 재생 실패:', error));
-    }
 });
