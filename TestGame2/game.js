@@ -2169,7 +2169,7 @@ document.head.insertAdjacentHTML('beforeend', `
             z-index: 1000;
             box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
             width: 90%;
-            max-width: 300px;
+            max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -2178,35 +2178,22 @@ document.head.insertAdjacentHTML('beforeend', `
             transform: translate(-50%, -50%);
         }
 
-        .tower-build-header {
-            text-align: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #4CAF50;
-        }
-
-        .tower-build-header h2 {
-            margin: 0;
-            color: #4CAF50;
-            font-size: clamp(1.2rem, 4vw, 1.5rem);
-        }
-
         .tower-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
             margin-bottom: 15px;
         }
 
         .tower-card {
             background: rgba(76, 175, 80, 0.1);
             border-radius: 8px;
-            padding: 12px;
+            padding: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            min-height: 120px;
+            min-height: 100px;
         }
 
         .tower-card:hover {
@@ -2226,7 +2213,7 @@ document.head.insertAdjacentHTML('beforeend', `
             right: 0;
             background: rgba(0, 0, 0, 0.7);
             padding: 4px 8px;
-            font-size: clamp(0.8rem, 3vw, 0.9rem);
+            font-size: 0.8rem;
             color: gold;
             text-align: center;
             border-top-left-radius: 8px;
@@ -2237,109 +2224,59 @@ document.head.insertAdjacentHTML('beforeend', `
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-top: 30px; /* 골드 표시 아래로 여백 추가 */
+            margin-top: 25px;
             margin-bottom: 8px;
         }
 
         .tower-icon {
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             background: #4CAF50;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2em;
+            font-size: 1em;
             flex-shrink: 0;
         }
 
         .tower-name {
             font-weight: bold;
             color: #4CAF50;
-            font-size: clamp(0.9rem, 3.5vw, 1rem);
+            font-size: 0.9rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .tower-stats {
-            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+            font-size: 0.7rem;
             color: #ccc;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .tower-stat {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 4px;
-        }
-
-        .tower-stat-label {
-            color: #888;
-        }
-
-        .tower-stat-value {
-            color: #4CAF50;
-            font-weight: bold;
+            margin-bottom: 2px;
         }
 
         .tower-description {
-            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+            font-size: 0.7rem;
             color: #888;
-            margin-top: 8px;
-            line-height: 1.4;
+            margin-top: 6px;
+            line-height: 1.3;
         }
 
-        .tower-range-preview {
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-            opacity: 0.3;
-            transition: all 0.3s ease;
-            z-index: 999;
-    }
-
-        /* 모바일 터치 최적화 */
-        @media (hover: none) {
-            .tower-card:active:not(.disabled) {
-                background: rgba(76, 175, 80, 0.2);
-                transform: translateY(-2px);
+        @media (max-width: 768px) {
+            .tower-build-menu {
+                width: 95%;
+                max-width: none;
             }
-        }
-
-        /* 스크롤바 스타일링 */
-        .tower-build-menu::-webkit-scrollbar {
-            width: 8px;
-    }
-
-        .tower-build-menu::-webkit-scrollbar-track {
-            background: rgba(76, 175, 80, 0.1);
-            border-radius: 4px;
-        }
-
-        .tower-build-menu::-webkit-scrollbar-thumb {
-            background: #4CAF50;
-            border-radius: 4px;
-        }
-
-        .tower-build-menu::-webkit-scrollbar-thumb:hover {
-            background: #45a049;
-        }
-
-        /* 그리드 하이라이트 스타일 */
-        .grid-highlight {
-            position: absolute;
-            background: rgba(76, 175, 80, 0.2);
-            border: 2px solid #4CAF50;
-            border-radius: 4px;
-            pointer-events: none;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.05); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 0.5; }
+            
+            .tower-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 `);
@@ -3803,6 +3740,288 @@ document.head.insertAdjacentHTML('beforeend', `
             }
             .info-icon {
                 font-size: 13px;
+            }
+        }
+    </style>
+`);
+
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        /* 타워 설치 레이어 UI 개선 */
+        #towerBuildMenu {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border: 1px solid #2196F3;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        #towerBuildMenu .tower-item {
+            background: linear-gradient(to bottom, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            width: 100%;
+        }
+        #towerBuildMenu .tower-item:hover {
+            background: linear-gradient(to bottom, #45a049, #3d8b40);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+        #towerBuildMenu .tower-item:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 타워 업그레이드 레이어 UI 개선 */
+        #towerUpgradeMenu {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border: 1px solid #2196F3;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        #towerUpgradeMenu .upgrade-item {
+            background: linear-gradient(to bottom, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            width: 100%;
+        }
+        #towerUpgradeMenu .upgrade-item:hover {
+            background: linear-gradient(to bottom, #45a049, #3d8b40);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+        #towerUpgradeMenu .upgrade-item:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+`);
+
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        /* 타워 업그레이드 메뉴 스타일 */
+        .tower-menu {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #4CAF50;
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            z-index: 1000;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 30px rgba(76, 175, 80, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .tower-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .tower-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tower-title h3 {
+            margin: 0;
+            color: #4CAF50;
+            font-size: 1.2em;
+        }
+
+        .tower-level {
+            background: #4CAF50;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .tower-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .stat-icon {
+            font-size: 1.2em;
+        }
+
+        .stat-value {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .stat-level {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        .upgrade-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .upgrade-item {
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .upgrade-item:hover {
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .upgrade-info {
+            margin-bottom: 10px;
+        }
+
+        .upgrade-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .upgrade-icon {
+            font-size: 1.2em;
+        }
+
+        .upgrade-name {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .upgrade-description {
+            font-size: 0.8em;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .upgrade-progress {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(76, 175, 80, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.8em;
+            color: #888;
+        }
+
+        .upgrade-button {
+            width: 100%;
+            padding: 8px;
+            background: linear-gradient(to bottom, #4CAF50, #45a049);
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upgrade-button:hover:not(:disabled) {
+            background: linear-gradient(to bottom, #45a049, #3d8b40);
+            transform: translateY(-1px);
+        }
+
+        .upgrade-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .sell-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .sell-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to bottom, #f44336, #d32f2f);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .sell-button:hover {
+            background: linear-gradient(to bottom, #d32f2f, #b71c1c);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .tower-menu {
+                width: 95%;
+                max-width: none;
+                padding: 15px;
+            }
+
+            .upgrade-section {
+                grid-template-columns: 1fr;
+            }
+
+            .tower-stats {
+                grid-template-columns: 1fr;
             }
         }
     </style>
