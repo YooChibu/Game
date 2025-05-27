@@ -3867,26 +3867,26 @@ document.head.insertAdjacentHTML('beforeend', `
         .tower-stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            gap: 4px;
             background: rgba(76, 175, 80, 0.05);
             border-radius: 6px;
-            padding: 8px;
-            margin: 8px 0;
+            padding: 6px;
+            margin: 6px 0;
         }
 
         .stat-item {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 4px 6px;
+            gap: 4px;
+            padding: 3px 4px;
             background: rgba(76, 175, 80, 0.1);
             border-radius: 4px;
-            font-size: 0.85em;
+            font-size: 0.8em;
         }
 
         .stat-icon {
-            font-size: 1.1em;
-            min-width: 20px;
+            font-size: 1em;
+            min-width: 18px;
             text-align: center;
         }
 
@@ -3898,10 +3898,10 @@ document.head.insertAdjacentHTML('beforeend', `
 
         .stat-level {
             color: #888;
-            font-size: 0.75em;
+            font-size: 0.7em;
             background: rgba(0, 0, 0, 0.2);
-            padding: 1px 4px;
-            border-radius: 3px;
+            padding: 1px 3px;
+            border-radius: 2px;
         }
 
         .upgrade-section {
