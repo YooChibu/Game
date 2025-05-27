@@ -3822,86 +3822,99 @@ document.head.insertAdjacentHTML('beforeend', `
             position: fixed;
             background: rgba(0, 0, 0, 0.95);
             border: 2px solid #4CAF50;
-            border-radius: 15px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 15px;
             color: white;
             z-index: 1000;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
+            width: 85%;
+            max-width: 400px;
+            max-height: 80vh;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             left: 50% !important;
             top: 50% !important;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 30px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
             backdrop-filter: blur(10px);
         }
 
         .tower-header {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(76, 175, 80, 0.3);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(76, 175, 80, 0.3);
         }
 
         .tower-title {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 10px;
         }
 
         .tower-title h3 {
             margin: 0;
             color: #4CAF50;
-            font-size: 1.2em;
+            font-size: 1.1em;
         }
 
         .tower-level {
             background: #4CAF50;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9em;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
         }
 
         .tower-stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 8px;
+            background: rgba(76, 175, 80, 0.05);
+            border-radius: 6px;
+            padding: 8px;
+            margin: 8px 0;
         }
 
         .stat-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.9em;
+            gap: 6px;
+            padding: 4px 6px;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 4px;
+            font-size: 0.85em;
         }
 
         .stat-icon {
-            font-size: 1.2em;
+            font-size: 1.1em;
+            min-width: 20px;
+            text-align: center;
         }
 
         .stat-value {
             color: #4CAF50;
             font-weight: bold;
+            flex: 1;
         }
 
         .stat-level {
             color: #888;
-            font-size: 0.8em;
+            font-size: 0.75em;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1px 4px;
+            border-radius: 3px;
         }
 
         .upgrade-section {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .upgrade-item {
             background: rgba(76, 175, 80, 0.1);
-            border-radius: 8px;
-            padding: 12px;
+            border-radius: 6px;
+            padding: 8px;
             transition: all 0.3s ease;
         }
 
@@ -3910,42 +3923,43 @@ document.head.insertAdjacentHTML('beforeend', `
         }
 
         .upgrade-info {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .upgrade-header {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 6px;
+            margin-bottom: 6px;
         }
 
         .upgrade-icon {
-            font-size: 1.2em;
+            font-size: 1.1em;
         }
 
         .upgrade-name {
             font-weight: bold;
             color: #4CAF50;
+            font-size: 0.9em;
         }
 
         .upgrade-description {
-            font-size: 0.8em;
+            font-size: 0.75em;
             color: #888;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .upgrade-progress {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .progress-bar {
             flex: 1;
-            height: 6px;
+            height: 4px;
             background: rgba(76, 175, 80, 0.2);
-            border-radius: 3px;
+            border-radius: 2px;
             overflow: hidden;
         }
 
@@ -3956,18 +3970,19 @@ document.head.insertAdjacentHTML('beforeend', `
         }
 
         .progress-text {
-            font-size: 0.8em;
+            font-size: 0.75em;
             color: #888;
         }
 
         .upgrade-button {
             width: 100%;
-            padding: 8px;
+            padding: 6px;
             background: linear-gradient(to bottom, #4CAF50, #45a049);
             border: none;
-            border-radius: 4px;
+            border-radius: 3px;
             color: white;
             font-weight: bold;
+            font-size: 0.9em;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -3983,25 +3998,26 @@ document.head.insertAdjacentHTML('beforeend', `
         }
 
         .sell-section {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 2px solid rgba(76, 175, 80, 0.3);
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(76, 175, 80, 0.3);
         }
 
         .sell-button {
             width: 100%;
-            padding: 12px;
+            padding: 8px;
             background: linear-gradient(to bottom, #f44336, #d32f2f);
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             color: white;
             font-weight: bold;
+            font-size: 0.9em;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .sell-button:hover {
@@ -4011,9 +4027,9 @@ document.head.insertAdjacentHTML('beforeend', `
 
         @media (max-width: 768px) {
             .tower-menu {
-                width: 95%;
-                max-width: none;
-                padding: 15px;
+                width: 90%;
+                max-width: 350px;
+                padding: 12px;
             }
 
             .upgrade-section {
