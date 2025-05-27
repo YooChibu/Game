@@ -1,3 +1,39 @@
+/* 디자인 시스템 */
+:root {
+    /* 색상 시스템 */
+    --primary: #6366f1;          /* 인디고 계열의 현대적인 색상 */
+    --primary-dark: #4f46e5;     /* 더 진한 인디고 */
+    --primary-light: #818cf8;    /* 밝은 인디고 */
+    --secondary: #1e1b4b;        /* 어두운 인디고 */
+    --background: #0f172a;       /* 어두운 네이비 */
+    --text: #f8fafc;            /* 밝은 회색 */
+    --text-secondary: rgba(248, 250, 252, 0.7);
+    
+    /* 강조 색상 */
+    --accent: #f472b6;          /* 핑크 계열의 강조색 */
+    --accent-dark: #db2777;
+    --success: #22c55e;         /* 성공 상태용 녹색 */
+    --warning: #f59e0b;         /* 경고 상태용 주황색 */
+    --error: #ef4444;           /* 에러 상태용 빨간색 */
+    
+    /* 그림자 시스템 */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    
+    /* 간격 시스템 */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    
+    /* 테두리 반경 */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+}
+
 /* 기본 스타일 */
 * {
     margin: 0;
@@ -6,9 +42,9 @@
 }
 
 body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-    color: #ffffff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--background) 0%, var(--secondary) 100%);
+    color: var(--text);
     line-height: 1.6;
     min-height: 100vh;
 }
@@ -27,81 +63,180 @@ body {
 /* 게임 영역 */
 .game-area {
     position: relative;
-    background: #2a2a2a;
-    border-radius: 15px;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+    background: var(--secondary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
     overflow: hidden;
-    border: 2px solid #4CAF50;
+    border: 2px solid var(--primary);
 }
 
 /* 정보 바 */
 .info-bar {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    padding: 20px;
-    background: rgba(42, 42, 42, 0.95);
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(5px);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: rgba(30, 27, 75, 0.95);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
 .info-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 15px;
-    background: rgba(51, 51, 51, 0.8);
-    border-radius: 12px;
-    color: #fff;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid rgba(76, 175, 80, 0.3);
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
 }
 
 .info-item:hover {
+    background: rgba(99, 102, 241, 0.1);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
 }
 
 .info-icon {
-    font-size: 1.8em;
-    color: #4CAF50;
-    text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    font-size: 1.5rem;
+    color: var(--primary);
+    filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.3));
 }
 
 /* 컨트롤 버튼 */
 .control-buttons {
     display: flex;
-    gap: 15px;
+    gap: var(--spacing-md);
     justify-content: center;
-    margin-top: 20px;
+    margin-top: var(--spacing-lg);
     flex-wrap: wrap;
 }
 
 .control-button {
-    padding: 15px 30px;
+    padding: var(--spacing-md) var(--spacing-lg);
     border: none;
-    border-radius: 12px;
-    background: linear-gradient(145deg, #4CAF50, #45a049);
-    color: white;
-    font-weight: bold;
-    font-size: 1.1em;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: var(--text);
+    font-weight: 600;
+    font-size: 1rem;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.control-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transform: translateX(-100%);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .control-button:hover {
-    background: linear-gradient(145deg, #45a049, #4CAF50);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+}
+
+.control-button:hover::before {
+    transform: translateX(100%);
 }
 
 .control-button:active {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+}
+
+/* 특수 버튼 스타일 */
+.control-button.primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+}
+
+.control-button.secondary {
+    background: linear-gradient(135deg, var(--secondary), var(--primary-dark));
+}
+
+.control-button.accent {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+}
+
+.control-button.success {
+    background: linear-gradient(135deg, var(--success), #15803d);
+}
+
+.control-button.warning {
+    background: linear-gradient(135deg, var(--warning), #d97706);
+}
+
+.control-button.error {
+    background: linear-gradient(135deg, var(--error), #dc2626);
+}
+
+/* 버튼 아이콘 */
+.control-button i,
+.control-button .icon {
+    font-size: 1.2em;
+    transition: transform 0.3s ease;
+}
+
+.control-button:hover i,
+.control-button:hover .icon {
+    transform: scale(1.1);
+}
+
+/* 버튼 그룹 */
+.control-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    margin-top: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+/* 비활성화된 버튼 */
+.control-button:disabled {
+    background: linear-gradient(135deg, #64748b, #475569);
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none;
+    box-shadow: none;
+}
+
+.control-button:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.control-button:disabled::before {
+    display: none;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+    .control-buttons {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .control-button {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* 미니맵 */
@@ -109,11 +244,11 @@ body {
     position: fixed;
     top: 20px;
     right: 20px;
-    background: rgba(0, 0, 0, 0.95);
+    background: rgba(15, 23, 42, 0.95);
     padding: 15px;
-    border-radius: 15px;
-    border: 2px solid #4CAF50;
-    box-shadow: 0 0 30px rgba(76, 175, 80, 0.3);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
     z-index: 1000;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
@@ -121,30 +256,18 @@ body {
 
 .minimap-container:hover {
     transform: scale(1.1);
-    box-shadow: 0 0 40px rgba(76, 175, 80, 0.4);
-}
-
-.minimap-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    box-shadow: 0 0 40px rgba(99, 102, 241, 0.4);
 }
 
 .minimap-title {
-    color: #4CAF50;
+    color: var(--primary);
     font-weight: bold;
 }
 
-.minimap-controls {
-    display: flex;
-    gap: 10px;
-}
-
 .minimap-button {
-    background: rgba(76, 175, 80, 0.2);
+    background: rgba(99, 102, 241, 0.2);
     border: none;
-    color: #4CAF50;
+    color: var(--primary);
     padding: 5px 10px;
     border-radius: 5px;
     cursor: pointer;
@@ -152,11 +275,11 @@ body {
 }
 
 .minimap-button:hover {
-    background: rgba(76, 175, 80, 0.3);
+    background: rgba(99, 102, 241, 0.3);
 }
 
 #minimapCanvas {
-    border: 2px solid #4CAF50;
+    border: 2px solid var(--primary);
     border-radius: 8px;
     background: rgba(0, 0, 0, 0.5);
 }
@@ -165,19 +288,19 @@ body {
 .wave-progress {
     width: 100%;
     height: 25px;
-    background: rgba(51, 51, 51, 0.8);
+    background: rgba(30, 27, 75, 0.8);
     border-radius: 15px;
     overflow: hidden;
     margin-top: 20px;
-    border: 2px solid rgba(76, 175, 80, 0.3);
+    border: 2px solid rgba(99, 102, 241, 0.3);
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
 
 .wave-progress .fill {
     height: 100%;
-    background: linear-gradient(90deg, #4CAF50, #45a049);
+    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
     transition: width 0.3s ease;
-    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
 
 /* 모달 창 */
@@ -189,7 +312,9 @@ body {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
     z-index: 1000;
+    animation: fadeIn 0.3s ease;
 }
 
 .modal-content {
@@ -197,20 +322,27 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: #2a2a2a;
-    padding: 30px;
-    border-radius: 10px;
-    min-width: 300px;
+    background: var(--secondary);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    min-width: 320px;
+    max-width: 90%;
     text-align: center;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: slideUp 0.3s ease;
 }
 
 .modal-content h2 {
-    color: #4CAF50;
-    margin-bottom: 20px;
+    color: var(--primary);
+    margin-bottom: var(--spacing-lg);
+    font-size: 1.5rem;
+    font-weight: 600;
 }
 
 .modal-content p {
-    margin: 10px 0;
+    margin: var(--spacing-sm) 0;
+    color: var(--text-secondary);
 }
 
 /* 게임 설정 */
@@ -228,43 +360,6 @@ body {
     background: #333;
     color: white;
     cursor: pointer;
-}
-
-/* 모바일 최적화 */
-@media (max-width: 768px) {
-    .game-container {
-        padding: 10px;
-    }
-
-    .info-bar {
-        grid-template-columns: repeat(2, 1fr);
-        padding: 15px;
-    }
-
-    .control-buttons {
-        flex-direction: column;
-    }
-
-    .control-button {
-        width: 100%;
-    }
-
-    .tower-menu {
-        width: 90%;
-        max-width: 320px;
-    }
-
-    .minimap-container {
-        position: relative;
-        top: 0;
-        right: 0;
-        margin-top: 15px;
-    }
-
-    .modal-content {
-        width: 90%;
-        max-width: 300px;
-    }
 }
 
 /* 애니메이션 */
@@ -287,6 +382,28 @@ body {
 @keyframes slideDown {
     from { transform: translate(-50%, -100%); }
     to { transform: translate(-50%, 0); }
+}
+
+@keyframes slideUp {
+    from { 
+        transform: translate(-50%, calc(-50% + 20px));
+        opacity: 0;
+    }
+    to { 
+        transform: translate(-50%, -50%);
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from { 
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to { 
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 /* 알림 메시지 */
@@ -603,17 +720,6 @@ body {
 }
 
 /* 애니메이션 */
-@keyframes scaleIn {
-    from {
-        transform: scale(0.8);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
 @keyframes bossWarning {
     0% {
         transform: translate(-50%, -50%) scale(1);
@@ -2379,4 +2485,167 @@ body {
     .chat-message {
         background: rgba(255, 255, 255, 0.05);
     }
+}
+
+/* 접근성 */
+:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+@media (prefers-contrast: high) {
+    :root {
+        --primary: #00ff00;
+        --text: #ffffff;
+        --background: #000000;
+    }
+}
+
+/* 게임 컨트롤 버튼 */
+#startBtn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border: none;
+    color: var(--text);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);
+}
+
+#startBtn:hover {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
+}
+
+#pauseBtn {
+    background: linear-gradient(135deg, var(--secondary), var(--primary-dark));
+    border: none;
+    color: var(--text);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);
+}
+
+#pauseBtn:hover {
+    background: linear-gradient(135deg, var(--primary-dark), var(--secondary));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
+}
+
+#helpBtn {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    border: none;
+    color: var(--text);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);
+}
+
+#helpBtn:hover {
+    background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
+}
+
+#saveBtn, #loadBtn {
+    background: linear-gradient(135deg, var(--primary-dark), var(--secondary));
+    border: none;
+    color: var(--text);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);
+}
+
+#saveBtn:hover, #loadBtn:hover {
+    background: linear-gradient(135deg, var(--secondary), var(--primary-dark));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
+}
+
+#waveStartButton {
+    background: linear-gradient(135deg, var(--warning), #d97706);
+    border: none;
+    color: var(--text);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);
+}
+
+#waveStartButton:hover {
+    background: linear-gradient(135deg, #d97706, var(--warning));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
+}
+
+/* 버튼 아이콘 스타일 */
+.control-button i,
+#startBtn i,
+#pauseBtn i,
+#helpBtn i,
+#saveBtn i,
+#loadBtn i,
+#waveStartButton i {
+    font-size: 1.2em;
+    margin-right: var(--spacing-sm);
+    transition: transform 0.3s ease;
+}
+
+.control-button:hover i,
+#startBtn:hover i,
+#pauseBtn:hover i,
+#helpBtn:hover i,
+#saveBtn:hover i,
+#loadBtn:hover i,
+#waveStartButton:hover i {
+    transform: scale(1.1);
+}
+
+/* 버튼 비활성화 상태 */
+.control-button:disabled,
+#startBtn:disabled,
+#pauseBtn:disabled,
+#helpBtn:disabled,
+#saveBtn:disabled,
+#loadBtn:disabled,
+#waveStartButton:disabled {
+    background: linear-gradient(135deg, #64748b, #475569);
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none;
+    box-shadow: none;
+}
+
+.control-button:disabled:hover,
+#startBtn:disabled:hover,
+#pauseBtn:disabled:hover,
+#helpBtn:disabled:hover,
+#saveBtn:disabled:hover,
+#loadBtn:disabled:hover,
+#waveStartButton:disabled:hover {
+    transform: none;
+    box-shadow: none;
 } 
