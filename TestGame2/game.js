@@ -2034,14 +2034,26 @@ function startWave() {
     if (gameState.waveInProgress) return;
     
     gameState.waveInProgress = true;
-    gameState.enemiesRemaining = 10 + (gameState.wave * 2);
-    
+    let groupSize = 3 + Math.floor(Math.random() * 3); // 3~5마리 그룹
+    let totalEnemies = 10 + (gameState.wave * 2);
+    let groupsToSpawn = Math.ceil(totalEnemies / groupSize);
+    gameState.enemiesRemaining = totalEnemies;
+    enemyGroups = [];
+    for (let i = 0; i < groupsToSpawn; i++) {
+        const group = new EnemyGroup(groupIdCounter++, groupSize);
+        for (let j = 0; j < groupSize && gameState.enemiesRemaining > 0; j++) {
+            const enemy = new Enemy(gameState.wave);
+            group.add(enemy);
+            enemies.push(enemy);
+            gameState.enemiesRemaining--;
+        }
+        enemyGroups.push(group);
+    }
+    // 보스 웨이브는 기존대로
     if (gameState.wave % gameState.bossWave === 0) {
         gameState.enemiesRemaining = 1;
         enemies.push(new Enemy(gameState.wave, true));
     }
-    
-    // 웨이브 시작 이펙트
     showWaveStartEffect();
     playSound('powerup');
 }
@@ -4765,3 +4777,26 @@ function showSkillEffect(x, y, name) {
     document.querySelector('.game-area').appendChild(effect);
     setTimeout(() => effect.remove(), 1200);
 }
+
+// 적 그룹 클래스
+class EnemyGroup {
+    constructor(id, size, type = null) {
+        this.id = id;
+        this.size = size;
+        this.type = type; // 그룹 전체 타입(선택)
+        this.members = [];
+        this.color = `hsl(${Math.floor(Math.random()*360)}, 60%, 60%)`;
+    }
+    add(enemy) {
+        enemy.groupId = this.id;
+        enemy.groupColor = this.color;
+        this.members.push(enemy);
+    }
+    aliveCount() {
+        return this.members.filter(e => e.health > 0).length;
+    }
+}
+
+// 그룹 관리 배열
+let enemyGroups = [];
+let groupIdCounter = 1;
