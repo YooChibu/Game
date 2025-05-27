@@ -3660,11 +3660,11 @@ document.head.insertAdjacentHTML('beforeend', `
             background: linear-gradient(to bottom, #2196F3, #1976D2);
             border: none;
             color: white;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            height: 28px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -3697,8 +3697,8 @@ document.head.insertAdjacentHTML('beforeend', `
 
             .wave-start-button {
                 padding: 0 6px;
-                font-size: 11px;
-                height: 26px;
+                font-size: 12px;
+                height: 40px;
             }
         }
     </style>
