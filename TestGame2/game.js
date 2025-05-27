@@ -1829,6 +1829,11 @@ class Enemy {
         if (this.groupSpeedBuff) this.speed = this.baseSpeed * this.groupSpeedBuff;
         if (this.groupDefenseBuff) this.defense = 10 * this.groupDefenseBuff; // 예시: 방어력 10 기준
 
+        // 스킬 발동 예고
+        if (this.skill && this.skillCooldown === 30) { // 0.5초 전에 경고
+            showSkillWarning(this.x, this.y, this.skill.name);
+        }
+
         return false;
     }
 
@@ -2034,6 +2039,12 @@ class Enemy {
             this.x * TILE_SIZE,
             this.y * TILE_SIZE - 5
         );
+
+        // 크리티컬 데미지 표시
+        if (this.lastDamage && this.lastDamage.isCritical) {
+            showDamageNumber(this.x, this.y, this.lastDamage.amount, true);
+            this.lastDamage = null;
+        }
     }
 }
 
@@ -2428,6 +2439,9 @@ function gameLoop() {
         gameState.isGameOver = true;
         showGameOver();
     }
+
+    // 그룹 연결선 그리기
+    drawGroupConnections();
 
     requestAnimationFrame(gameLoop);
 }
@@ -2950,47 +2964,92 @@ window.addEventListener('load', () => {
 });
 
 // 데미지 숫자 표시 함수
-function showDamageNumber(x, y, damage) {
-    if (!isFinite(damage) || damage <= 0) return; // 유효하지 않은 데미지 값은 표시하지 않음
+function showDamageNumber(x, y, damage, isCritical = false) {
+    const damageText = document.createElement('div');
+    damageText.className = 'damage-number';
+    damageText.textContent = damage;
+    damageText.style.left = `${x * TILE_SIZE + TILE_SIZE/2}px`;
+    damageText.style.top = `${y * TILE_SIZE}px`;
+    damageText.style.color = isCritical ? '#ff0000' : '#ffffff';
+    damageText.style.fontSize = isCritical ? '24px' : '16px';
+    damageText.style.fontWeight = isCritical ? 'bold' : 'normal';
+    document.querySelector('.game-area').appendChild(damageText);
+
+    const animation = damageText.animate([
+        { transform: 'translateY(0) scale(1)', opacity: 1 },
+        { transform: 'translateY(-30px) scale(1.2)', opacity: 0.8 },
+        { transform: 'translateY(-60px) scale(1)', opacity: 0 }
+    ], {
+        duration: 1000,
+        easing: 'ease-out'
+    });
+
+    animation.onfinish = () => damageText.remove();
+}
+
+// 스킬 발동 예고 효과
+function showSkillWarning(x, y, skillName) {
+    const warning = document.createElement('div');
+    warning.className = 'skill-warning';
+    warning.textContent = `⚠️ ${skillName}`;
+    warning.style.left = `${x * TILE_SIZE + TILE_SIZE/2}px`;
+    warning.style.top = `${y * TILE_SIZE - 40}px`;
+    document.querySelector('.game-area').appendChild(warning);
+
+    const animation = warning.animate([
+        { transform: 'scale(1)', opacity: 1 },
+        { transform: 'scale(1.2)', opacity: 0.8 },
+        { transform: 'scale(1)', opacity: 1 }
+    ], {
+        duration: 500,
+        iterations: 3,
+        easing: 'ease-in-out'
+    });
+
+    animation.onfinish = () => warning.remove();
+}
+
+// 그룹 시각화 효과
+function drawGroupConnections() {
+    const groups = new Map();
     
-    const damageElement = document.createElement('div');
-    damageElement.className = 'damage-number';
-    
-    // 크리티컬 데미지 체크 (기본 데미지의 1.5배 이상일 때)
-    const isCritical = damage >= 15;
-    if (isCritical) {
-        damageElement.classList.add('critical');
-    }
-    
-    damageElement.textContent = Math.floor(damage);
-    
-    // 적의 현재 위치에 데미지 숫자를 표시
-    const enemy = enemies.find(e => e.x === x && e.y === y);
-    if (enemy) {
-        const updatePosition = () => {
-            damageElement.style.left = `${enemy.x * TILE_SIZE + TILE_SIZE/2}px`;
-            damageElement.style.top = `${enemy.y * TILE_SIZE}px`;
-        };
-        
-        // 초기 위치 설정
-        updatePosition();
-        
-        // 애니메이션 중에 위치 업데이트
-        const animationFrame = requestAnimationFrame(function animate() {
-            updatePosition();
-            if (damageElement.parentElement) {
-                requestAnimationFrame(animate);
+    // 그룹별로 적 분류
+    enemies.forEach(enemy => {
+        if (enemy.groupId) {
+            if (!groups.has(enemy.groupId)) {
+                groups.set(enemy.groupId, []);
             }
-        });
-        
-        document.querySelector('.game-area').appendChild(damageElement);
-        
-        // 1초 후에 요소 제거
-        setTimeout(() => {
-            cancelAnimationFrame(animationFrame);
-            damageElement.remove();
-        }, isCritical ? 1200 : 1000);
-    }
+            groups.get(enemy.groupId).push(enemy);
+        }
+    });
+
+    // 각 그룹의 연결선 그리기
+    groups.forEach(members => {
+        if (members.length > 1) {
+            ctx.save();
+            ctx.strokeStyle = members[0].groupColor;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.3;
+            
+            // 모든 멤버를 연결하는 선 그리기
+            for (let i = 0; i < members.length - 1; i++) {
+                const start = members[i];
+                const end = members[i + 1];
+                
+                ctx.beginPath();
+                ctx.moveTo(
+                    start.x * TILE_SIZE + TILE_SIZE/2,
+                    start.y * TILE_SIZE + TILE_SIZE/2
+                );
+                ctx.lineTo(
+                    end.x * TILE_SIZE + TILE_SIZE/2,
+                    end.y * TILE_SIZE + TILE_SIZE/2
+                );
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+    });
 }
 
 // 그리드 하이라이트 함수
