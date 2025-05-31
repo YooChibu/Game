@@ -749,12 +749,11 @@ const TOWER_TYPES = {
                     const dy = (enemy.y - tower.y) * TILE_SIZE;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     if (distance <= tower.range * TILE_SIZE) {
-                        enemy.speed = 0;
-                        setTimeout(() => {
-                            enemy.speed = enemy.baseSpeed;
-                        }, 5000);
+                        enemy.applyStatusEffect('FROZEN', 5);
+                        showSkillEffect(enemy.x, enemy.y, '❄️');
                     }
                 });
+                playSound('ice_special');
             }
         }
     },
@@ -1454,8 +1453,7 @@ class Tower {
 
                 case 'ICE':
                     target.health -= this.damage;
-                    target.speed *= 0.5;
-                    target.freezeDuration = this.freezeDuration;
+                    target.applyStatusEffect('FROZEN', this.freezeDuration);
                     showDamageNumber(target.x, target.y, this.damage);
                         break;
 
